@@ -3,13 +3,14 @@ import { emit, emitTo, listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { convertToUnifiedTrack, createSpotifyProvider } from "../../providers/spotify";
 import type { UnifiedTrack } from "../../providers/types";
-import { transferPlayback } from "../../ui/spotifyClient";
+import { fetchCurrentlyPlaying, transferPlayback } from "../../ui/spotifyClient";
 import { stopAIQueue } from "../aiQueueService";
 import type { LocalPlaylist, PlaylistChange, PlaylistEntry } from "../localLibrary";
 import { toOutputVolume } from "../outputVolume";
 import { readSettings } from "../settingLib";
 import {
   activateSpotifyWebPlayback,
+  getSpotifyLocalPlayback,
   isSpotifyWebPlaybackReady,
   subscribeSpotifyLocalPlayback,
 } from "../spotifyWebPlayback";
@@ -28,6 +29,12 @@ export type PlaybackCommand =
   | { action: "next" | "previous" | "state" | "stop" };
 
 type AudioStream = { streamId: string; url: string };
+type SpotifyProgress = {
+  positionMs: number;
+  durationMs: number;
+  playing: boolean;
+  sampledAt: number;
+};
 
 const MAIN = getCurrentWindow().label === "main";
 /** Commands that replace whatever is playing or still loading. */
@@ -54,11 +61,17 @@ let heard = new Set<string>();
 let planned: string | null = null;
 let ended = false;
 let retry = false;
+/** The last reading of the Spotify song playing, to tell its end from a pause. */
+let spotifyProgress: SpotifyProgress | null = null;
 const state = () => usePlaybackSession.getState();
 const spotify = createSpotifyProvider();
 
 /** How often a routine position update reaches the store and the other windows. */
 const PROGRESS_EVERY_MS = 1000;
+/** How close to its end a Spotify song must have got for a stop to mean "finished". */
+const END_SLACK_MS = 2500;
+/** Without the SDK, Spotify says nothing when a song ends; it is asked this often. */
+const REMOTE_POLL_MS = 2500;
 let broadcastTimer: ReturnType<typeof setTimeout> | undefined;
 let lastBroadcast = 0;
 
@@ -139,6 +152,7 @@ function prefetchUpcoming() {
 
 async function playEntry(track: UnifiedTrack, positionMs = 0, fresh = false) {
   const run = generation;
+  spotifyProgress = null;
   publish({
     loading: true,
     error: null,
@@ -189,6 +203,45 @@ async function playEntry(track: UnifiedTrack, positionMs = 0, fresh = false) {
     });
     throw error;
   }
+}
+
+/**
+ * Moves on once the Spotify song stopped at its end. Each song plays as its own
+ * one-track context, so Spotify just stops there. The SDK only reports changes,
+ * not progress: the last reading is usually from the song's start, so the
+ * position is extrapolated from it.
+ */
+function followSpotify(next: SpotifyProgress | null) {
+  const prev = spotifyProgress;
+  spotifyProgress = next;
+  if (ended || !prev?.playing || next?.playing) return;
+  const elapsed = (next?.sampledAt ?? Date.now()) - prev.sampledAt;
+  if (prev.positionMs + elapsed < prev.durationMs - END_SLACK_MS) return;
+  ended = true;
+  void enqueue({ action: "next" });
+}
+
+async function pollRemoteSpotify() {
+  const track = state().playback?.track;
+  const idle = () =>
+    !state().local || state().loading || ended || state().playback?.track !== track;
+  if (idle() || track?.provider !== "spotify") return;
+  if (isSpotifyWebPlaybackReady() && getSpotifyLocalPlayback()) return;
+  const data = await fetchCurrentlyPlaying().catch(() => undefined);
+  // A failed read says nothing, and by now another song may have started.
+  if (data === undefined || idle()) return;
+  // Someone started something else on another device; that is not an end.
+  if (data?.item && data.item.id !== track.id) return;
+  followSpotify(
+    data?.item
+      ? {
+          positionMs: data.progress_ms ?? 0,
+          durationMs: data.item.duration_ms,
+          playing: data.is_playing,
+          sampledAt: Date.now(),
+        }
+      : null
+  );
 }
 
 async function advance(previous: boolean) {
@@ -442,6 +495,12 @@ export function initializePlaybackSession(): Promise<void> {
         return;
       if (sample.track.id !== current.playback.track.id) return;
       const previous = current.playback;
+      followSpotify({
+        positionMs: sample.positionMs,
+        durationMs: sample.durationMs,
+        playing: !sample.paused,
+        sampledAt: sample.sampledAt,
+      });
       publish(
         {
           playback: {
@@ -452,16 +511,8 @@ export function initializePlaybackSession(): Promise<void> {
         },
         previous.isPlaying === !sample.paused
       );
-      if (
-        !ended &&
-        sample.paused &&
-        previous.isPlaying &&
-        previous.progressMs >= sample.durationMs - 2500
-      ) {
-        ended = true;
-        void enqueue({ action: "next" });
-      }
     });
+    setInterval(() => void pollRemoteSpotify(), REMOTE_POLL_MS);
     const settings = await readSettings();
     player.volume = Math.max(0, Math.min(1, toOutputVolume(settings.spotify_volume ?? 50) / 100));
   })();

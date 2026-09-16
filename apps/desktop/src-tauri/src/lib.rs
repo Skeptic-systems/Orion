@@ -12,6 +12,7 @@ pub mod resize;
 pub mod settings;
 pub mod spotify_auth;
 pub mod taskbar;
+mod theme_background;
 pub mod titlebar;
 
 mod clear_all {
@@ -21,6 +22,7 @@ mod clear_all {
     pub async fn execute(app: &AppHandle) -> Result<(), String> {
         let settings_cleared = settings::clear_settings(app.clone());
         let themes_cleared = custom_themes::clear_custom_themes(app);
+        let background_result = theme_background::clear_theme_background(app);
         let spotify_result = spotify_auth::clear_credentials().await;
         let ai_keys_result = ai_keyring::clear_all_ai_keys().await;
 
@@ -30,6 +32,7 @@ mod clear_all {
         if !themes_cleared {
             return Err("Failed to clear custom themes".to_string());
         }
+        background_result?;
         spotify_result?;
         ai_keys_result?;
 
@@ -140,6 +143,9 @@ pub fn run() {
             custom_themes::delete_custom_theme,
             custom_themes::export_custom_theme,
             custom_themes::validate_theme_json,
+            theme_background::save_theme_background,
+            theme_background::load_theme_background,
+            theme_background::delete_theme_background,
             discord_rpc::enable_discord_rpc,
             discord_rpc::disable_discord_rpc,
             discord_rpc::update_discord_presence,

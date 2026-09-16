@@ -88,6 +88,13 @@ pub struct Settings {
     /// than only in localStorage, which dev and release builds do not share.
     #[serde(default)]
     pub desktop_layout: Option<DesktopLayout>,
+    /// Changes with every upload, so the other window knows to reload the
+    /// image; `None` when advanced themes use their own scenery.
+    #[serde(default)]
+    pub theme_background: Option<String>,
+    /// How far the uploaded image is darkened (or lightened on a light theme).
+    #[serde(default = "default_background_dim")]
+    pub theme_background_dim: u8,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
@@ -131,6 +138,10 @@ fn default_visualizer_intensity() -> u8 {
     100
 }
 
+fn default_background_dim() -> u8 {
+    35
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AIProviderConfig {
     pub provider: String,
@@ -160,6 +171,8 @@ impl Default for Settings {
             music_video_sidebar: false,
             music_video_background: false,
             desktop_layout: None,
+            theme_background: None,
+            theme_background_dim: default_background_dim(),
         }
     }
 }

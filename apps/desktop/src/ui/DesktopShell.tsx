@@ -45,6 +45,7 @@ import {
   subscribeSpotifyWebPlaybackStatus,
 } from "../lib/spotifyWebPlayback";
 import { useUpdaterStore } from "../lib/updaterStore";
+import { useThemeBackground } from "../lib/themeBackground";
 import { startRendererWatchdog } from "../lib/watchdog";
 import { getActiveProvider, getActiveProviderType } from "../providers";
 import { convertToUnifiedTrack as convertSpotifyTrack } from "../providers/spotify";
@@ -287,10 +288,15 @@ export default function DesktopShell({ onResetAuth, onUpdateTheme }: DesktopShel
   const isRadioTrack = useAutoplayStore((state) =>
     currentTrackId ? state.radioTrackIds.has(currentTrackId) : false
   );
+  const background = useThemeBackground();
   const shellStyle = {
     "--desktop-sidebar-width": `${sidebarWidth}px`,
     "--desktop-player-height": `${playerHeight}px`,
     "--desktop-now-panel-width": `${nowPanelWidth}px`,
+    // Read by the advanced themes' backdrop; plain themes ignore them.
+    "--skin-artwork": artwork ? `url("${artwork}")` : "none",
+    "--skin-image": background.url ? `url("${background.url}")` : "none",
+    "--skin-image-dim": background.dim / 100,
   } as CSSProperties;
 
   const toggleNowPanel = useCallback(() => {
@@ -717,6 +723,17 @@ export default function DesktopShell({ onResetAuth, onUpdateTheme }: DesktopShel
       className={`desktop-shell font-circular ${nowPanelOpen ? "has-now-panel" : ""}`}
       style={shellStyle}
     >
+      {/* Only shown by advanced themes: their scenery, the cover's colours, or
+          the uploaded image. */}
+      <div
+        className={`desktop-skin-backdrop ${background.url ? "has-image" : ""}`}
+        aria-hidden="true"
+      >
+        <div className="desktop-skin-art" />
+        <div className="desktop-skin-scene" />
+        <div className="desktop-skin-image" />
+      </div>
+
       <aside className="desktop-sidebar">
         <div className="desktop-brand">
           <img src="/logo.png" alt="" className="desktop-brand-mark" />

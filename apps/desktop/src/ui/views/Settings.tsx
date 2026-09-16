@@ -46,7 +46,9 @@ import {
   writeSettings,
 } from "../../lib/settingLib";
 import { useUpdaterStore } from "../../lib/updaterStore";
+import { advancedThemeLabel } from "../../loader/advancedThemes";
 import { applyCustomThemeFromJson, validateThemeJsonFormat } from "../../loader/themeLoader";
+import AdvancedThemes from "../components/AdvancedThemes";
 
 const AI_PROVIDERS: { id: AIProviderType; name: string; model: string; color: string }[] = [
   { id: "openai", name: "OpenAI", model: "GPT-4o Mini", color: "#10A37F" },
@@ -1260,7 +1262,7 @@ export default function Settings({
                   Current:{" "}
                   {currentTheme.startsWith("custom:")
                     ? currentTheme.replace("custom:", "")
-                    : currentTheme}
+                    : (advancedThemeLabel(currentTheme) ?? currentTheme)}
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -1296,6 +1298,9 @@ export default function Settings({
                   </button>
                 ))}
               </div>
+
+              {/* They restyle the desktop shell, which the mini player does not have. */}
+              {isDesktop && <AdvancedThemes currentTheme={currentTheme} onApply={applyTheme} />}
 
               {customThemes.length > 0 && (
                 <>

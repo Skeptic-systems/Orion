@@ -1,0 +1,47 @@
+{
+  "name": "liquid-glass",
+
+  "panel": {
+    "background": "rgba(34, 40, 66, 0.55)",
+    "borderRadius": 26,
+    "shadow": "inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 18px 48px rgba(8, 10, 30, 0.45)"
+  },
+
+  "settings": {
+    "panelBg": "rgba(255, 255, 255, 0.08)",
+    "panelBorder": "rgba(255, 255, 255, 0.2)",
+    "text": "#FFFFFF",
+    "textMuted": "rgba(255, 255, 255, 0.72)",
+    "itemHover": "rgba(255, 255, 255, 0.12)",
+    "itemActive": "rgba(255, 255, 255, 0.22)",
+    "accent": "#6CD4FF"
+  },
+
+  "controls": {
+    "iconColor": "rgba(255, 255, 255, 0.9)",
+    "iconColorActive": "#FFFFFF"
+  },
+
+  "playbar": {
+    "trackBg": "rgba(255, 255, 255, 0.22)",
+    "trackFill": "linear-gradient(90deg, rgba(255, 255, 255, 0.75) 0%, #FFFFFF 100%)",
+    "thumbColor": "#FFFFFF",
+    "timeTextColor": "rgba(255, 255, 255, 0.75)"
+  },
+
+  "typography": {
+    "songTitle": { "color": "#FFFFFF", "weight": 600 },
+    "songArtist": { "color": "rgba(255, 255, 255, 0.72)", "weight": 400 }
+  },
+
+  "actions": {
+    "iconColor": "#FFFFFF",
+    "iconBackground": "rgba(255, 255, 255, 0.1)",
+    "iconBackgroundHover": "rgba(255, 255, 255, 0.2)"
+  },
+
+  "cover": {
+    "borderColor": "rgba(255, 255, 255, 0.35)",
+    "borderRadius": 16
+  }
+}

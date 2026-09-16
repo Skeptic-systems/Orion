@@ -117,6 +117,10 @@ export type Settings = {
   music_video_sidebar: boolean;
   music_video_background: boolean;
   desktop_layout: DesktopLayout | null;
+  /** Upload token of the advanced themes' own background; `null` = none. */
+  theme_background: string | null;
+  /** 0–80: how far that image is faded toward the theme's background. */
+  theme_background_dim: number;
 };
 
 export type CustomTheme = {
@@ -186,6 +190,8 @@ export async function readSettings(): Promise<Settings> {
       music_video_sidebar: settings.music_video_sidebar ?? false,
       music_video_background: settings.music_video_background ?? false,
       desktop_layout: settings.desktop_layout ?? null,
+      theme_background: settings.theme_background ?? null,
+      theme_background_dim: settings.theme_background_dim ?? 35,
     };
   } catch (err) {
     console.warn("Failed to read settings via Tauri, using defaults:", err);
@@ -209,6 +215,8 @@ export async function readSettings(): Promise<Settings> {
       music_video_sidebar: false,
       music_video_background: false,
       desktop_layout: null,
+      theme_background: null,
+      theme_background_dim: 35,
     };
   }
 }

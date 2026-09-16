@@ -1,3 +1,7 @@
+import ambient from "../themes/advanced/ambient.json" with { type: "json" };
+import editorial from "../themes/advanced/editorial.json" with { type: "json" };
+import liquidGlass from "../themes/advanced/liquid-glass.json" with { type: "json" };
+import neon from "../themes/advanced/neon.json" with { type: "json" };
 import aurora from "../themes/aurora.json" with { type: "json" };
 import bmw from "../themes/bmw.json" with { type: "json" };
 import catppuccin from "../themes/catppuccin.json" with { type: "json" };
@@ -8,10 +12,13 @@ import ember from "../themes/ember.json" with { type: "json" };
 import light from "../themes/light.json" with { type: "json" };
 import milka from "../themes/milka.json" with { type: "json" };
 import youtube from "../themes/youtube.json" with { type: "json" };
+import { ADVANCED_THEME_PREFIX } from "./advancedThemes";
 import { applyDesktopThemeVars } from "./desktopTheme";
 
 export type ThemeConfig = {
   name: string;
+  /** The desktop skin of an advanced theme; plain colour themes have none. */
+  skin?: string;
 
   // Panel
   panel?: string;
@@ -102,6 +109,10 @@ function transformTheme(theme: RawTheme): ThemeConfig {
   };
 }
 
+function advancedTheme(theme: RawTheme, skin: string): Record<string, ThemeConfig> {
+  return { [`${ADVANCED_THEME_PREFIX}${skin}`]: { ...transformTheme(theme), skin } };
+}
+
 export const THEMES: Record<string, ThemeConfig> = {
   dark: transformTheme(dark),
   light: transformTheme(light),
@@ -113,10 +124,17 @@ export const THEMES: Record<string, ThemeConfig> = {
   chatgpt: transformTheme(chatgpt),
   aurora: transformTheme(aurora),
   ember: transformTheme(ember),
+  ...advancedTheme(liquidGlass, "liquid-glass"),
+  ...advancedTheme(ambient, "ambient"),
+  ...advancedTheme(editorial, "editorial"),
+  ...advancedTheme(neon, "neon"),
 };
 
 export function applyThemeConfig(t: ThemeConfig): void {
   const root = document.documentElement;
+
+  if (t.skin) root.dataset.skin = t.skin;
+  else delete root.dataset.skin;
 
   // Panel
   root.style.setProperty("--player-panel-bg", t.panel ?? "#000000");

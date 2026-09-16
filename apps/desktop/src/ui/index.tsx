@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./global.css";
 import "./library.css";
+import "./skins.css";
 
 import { LogicalPosition } from "@tauri-apps/api/dpi";
 import { listen } from "@tauri-apps/api/event";

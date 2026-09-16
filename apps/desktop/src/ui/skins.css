@@ -1,0 +1,1344 @@
+/*
+ * Advanced themes. themeLoader sets `data-skin` on <html> and the colour theme
+ * that goes with it; everything here restyles the desktop shell on top of
+ * that. Plain colour themes never set `data-skin`, so none of this applies to
+ * them or to the mini player.
+ *
+ * Colour overrides sit on `body.desktop-window` rather than <html>: the theme
+ * variables are inline styles on <html>, which a stylesheet cannot beat there,
+ * and menus and dialogs render into <body> outside the shell.
+ */
+
+/* Backdrop ---------------------------------------------------------------- */
+
+.desktop-skin-backdrop {
+  display: none;
+}
+
+html[data-skin] .desktop-skin-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--desktop-bg);
+}
+
+html[data-skin] :is(.desktop-skin-art, .desktop-skin-scene, .desktop-skin-image) {
+  position: absolute;
+  inset: 0;
+}
+
+/* The cover of the song playing, for skins that take their colour from it. */
+html[data-skin] .desktop-skin-art {
+  display: none;
+  background: var(--skin-artwork) center / cover no-repeat;
+}
+
+html[data-skin] .desktop-skin-image {
+  display: none;
+  background: var(--skin-image) center / cover no-repeat;
+}
+
+/* Faded toward the theme's own background, by the amount set in Settings. */
+html[data-skin] .desktop-skin-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--desktop-bg);
+  opacity: var(--skin-image-dim, 0.35);
+}
+
+html[data-skin] .desktop-skin-backdrop.has-image .desktop-skin-image {
+  display: block;
+}
+
+html[data-skin] .desktop-skin-backdrop.has-image :is(.desktop-skin-art, .desktop-skin-scene) {
+  display: none;
+}
+
+/* Painted in DOM order otherwise, which would put the static sidebar and panel
+   underneath the backdrop. */
+html[data-skin] .desktop-now-panel {
+  position: relative;
+}
+
+/* Floating panes ------------------------------------------------------------ */
+
+/* Liquid Glass, Ambient and Neon Drive lift each area off the backdrop as its
+   own pane, with the backdrop showing in the gaps. */
+html:is([data-skin="liquid-glass"], [data-skin="ambient"], [data-skin="neon"]) .desktop-shell {
+  gap: var(--skin-gap);
+  padding: var(--skin-gap);
+}
+
+html[data-skin="liquid-glass"] .desktop-shell {
+  --skin-gap: 12px;
+}
+
+html:is([data-skin="ambient"], [data-skin="neon"]) .desktop-shell {
+  --skin-gap: 8px;
+}
+
+/* The handles are placed from the window edge, so the padding and half the
+   gap move them back onto the seams. */
+html:is([data-skin="liquid-glass"], [data-skin="ambient"], [data-skin="neon"])
+.desktop-sidebar-resize-handle {
+  left: calc(var(--skin-gap) * 1.5 + var(--desktop-sidebar-width) - 7px);
+}
+
+html:is([data-skin="liquid-glass"], [data-skin="ambient"], [data-skin="neon"])
+  .desktop-now-panel-resize-handle {
+  top: var(--skin-gap);
+  right: calc(var(--skin-gap) * 1.5 + var(--desktop-now-panel-width) - 7px);
+  bottom: calc(var(--skin-gap) * 2 + var(--desktop-player-height));
+}
+
+html:is([data-skin="liquid-glass"], [data-skin="ambient"], [data-skin="neon"])
+  :is(.desktop-sidebar, .desktop-now-panel, .desktop-player) {
+  border: 0;
+}
+
+/* ========================================================================== */
+/* Liquid Glass                                                              */
+/* ========================================================================== */
+
+html[data-skin="liquid-glass"] body.desktop-window {
+  --desktop-bg: #1d2150;
+  --desktop-bg-raised: rgba(44, 48, 96, 0.94);
+  --desktop-surface: rgba(255, 255, 255, 0.1);
+  --desktop-surface-strong: rgba(255, 255, 255, 0.16);
+  --desktop-surface-hover: rgba(255, 255, 255, 0.26);
+  --desktop-border: rgba(255, 255, 255, 0.24);
+  --desktop-chrome: rgba(255, 255, 255, 0.08);
+  --desktop-text: #ffffff;
+  --desktop-muted: rgba(255, 255, 255, 0.76);
+  --desktop-dim: rgba(255, 255, 255, 0.52);
+  --desktop-accent: #6cd4ff;
+  --desktop-accent-contrast: #06243a;
+  --skin-glass-rim:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55), inset 1px 0 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.14), inset -1px 0 0 rgba(255, 255, 255, 0.1);
+}
+
+html[data-skin="liquid-glass"] .desktop-shell.font-circular {
+  font-family:
+    "SF Pro Display", "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, sans-serif;
+  text-shadow: 0 1px 2px rgba(10, 12, 40, 0.18);
+}
+
+/* A wallpaper in the style of Apple's: soft, saturated light, with the cover's
+   colours washed over it so the glass picks up the song. */
+html[data-skin="liquid-glass"] .desktop-skin-backdrop {
+  background: #151a4a;
+}
+
+html[data-skin="liquid-glass"] .desktop-skin-scene {
+  background:
+    radial-gradient(55% 65% at 8% 12%, #ff7a45 0%, transparent 62%),
+    radial-gradient(50% 60% at 92% 6%, #8a63ff 0%, transparent 64%),
+    radial-gradient(65% 65% at 82% 96%, #1ec8ff 0%, transparent 62%),
+    radial-gradient(55% 55% at 16% 98%, #ff4fa3 0%, transparent 60%),
+    radial-gradient(40% 40% at 50% 50%, #5a7bff 0%, transparent 70%),
+    linear-gradient(135deg, #1c2466 0%, #3b1a6b 100%);
+}
+
+html[data-skin="liquid-glass"] .desktop-skin-art {
+  z-index: 1;
+  display: block;
+  inset: -12%;
+  opacity: 0.5;
+  filter: blur(90px) saturate(1.8);
+}
+
+html[data-skin="liquid-glass"]
+  :is(.desktop-sidebar, .desktop-main, .desktop-now-panel, .desktop-player) {
+  border-radius: 28px;
+  background: linear-gradient(
+    150deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0.07) 42%,
+    rgba(255, 255, 255, 0.12) 100%
+  );
+  backdrop-filter: blur(34px) saturate(180%);
+  box-shadow:
+    var(--skin-glass-rim),
+    0 24px 60px rgba(8, 10, 40, 0.32);
+}
+
+html[data-skin="liquid-glass"] .desktop-video-backdrop {
+  border-radius: 28px;
+}
+
+html[data-skin="liquid-glass"] .desktop-player {
+  border-radius: 34px;
+}
+
+html[data-skin="liquid-glass"] .desktop-brand-mark {
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+/* The selected item is a lens: brighter glass with its own rim. */
+html[data-skin="liquid-glass"] :is(.desktop-nav-item, .desktop-mini-button) {
+  border-radius: 999px;
+}
+
+html[data-skin="liquid-glass"] .desktop-nav-item:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+html[data-skin="liquid-glass"] .desktop-nav-item.is-active {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0.14));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.22),
+    0 8px 22px rgba(10, 12, 50, 0.22);
+}
+
+html[data-skin="liquid-glass"] .desktop-nav-item.is-active svg {
+  color: #ffffff;
+}
+
+html[data-skin="liquid-glass"] .desktop-update-button {
+  border: 0;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: var(--skin-glass-rim);
+}
+
+html[data-skin="liquid-glass"] .desktop-account {
+  border-top-color: rgba(255, 255, 255, 0.18);
+}
+
+html[data-skin="liquid-glass"] .desktop-hero h1 {
+  font-size: clamp(30px, 3.2vw, 44px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+html[data-skin="liquid-glass"] .desktop-section-heading h2 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+html[data-skin="liquid-glass"] .desktop-section-heading.is-sticky {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(26px) saturate(170%);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.16);
+}
+
+html[data-skin="liquid-glass"] :is(.desktop-track-card, .desktop-playlist-grid button) {
+  border-radius: 22px;
+}
+
+html[data-skin="liquid-glass"]
+  :is(.desktop-track-card, .desktop-playlist-grid button, .desktop-playlist-list button):hover {
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: var(--skin-glass-rim);
+}
+
+html[data-skin="liquid-glass"] :is(.desktop-track-art, .desktop-playlist-grid button > div) {
+  border-radius: 16px;
+  box-shadow: 0 10px 26px rgba(8, 10, 40, 0.3);
+}
+
+html[data-skin="liquid-glass"] .desktop-track-art span,
+html[data-skin="liquid-glass"] .desktop-play-button {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(235, 240, 255, 0.82));
+  color: #141833;
+  box-shadow:
+    inset 0 -2px 6px rgba(20, 24, 60, 0.18),
+    0 10px 26px rgba(8, 10, 40, 0.35);
+}
+
+html[data-skin="liquid-glass"]
+  :is(
+    .desktop-chip-list button,
+    .desktop-search-row,
+    .desktop-filter-chip,
+    .desktop-back-button,
+    .library-search-input,
+    .library-source-tabs
+  ) {
+  background: rgba(255, 255, 255, 0.13);
+  box-shadow: var(--skin-glass-rim);
+}
+
+html[data-skin="liquid-glass"] :is(.desktop-chip-list button, .desktop-filter-chip):hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+html[data-skin="liquid-glass"] .desktop-filter-chip.is-on {
+  background: rgba(255, 255, 255, 0.92);
+  color: #141833;
+  text-shadow: none;
+}
+
+html[data-skin="liquid-glass"] .desktop-now-art {
+  border-radius: 14px;
+  box-shadow: 0 6px 16px rgba(8, 10, 40, 0.3);
+}
+
+html[data-skin="liquid-glass"] .desktop-now-panel-art {
+  border-radius: 22px;
+  box-shadow: 0 18px 40px rgba(8, 10, 40, 0.35);
+}
+
+html[data-skin="liquid-glass"] .desktop-now-panel-lyrics-box {
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: var(--skin-glass-rim);
+}
+
+html[data-skin="liquid-glass"] .desktop-now-panel-synced p.is-active {
+  color: #ffffff;
+  text-shadow: 0 0 18px rgba(255, 255, 255, 0.55);
+}
+
+html[data-skin="liquid-glass"] .library-tracks li {
+  border-radius: 14px;
+}
+
+/* ========================================================================== */
+/* Ambient                                                                   */
+/* ========================================================================== */
+
+html[data-skin="ambient"] body.desktop-window {
+  --desktop-bg: #0b0b0d;
+  --desktop-bg-raised: #1c1c1f;
+  --desktop-surface: rgba(255, 255, 255, 0.06);
+  --desktop-surface-strong: rgba(255, 255, 255, 0.1);
+  --desktop-surface-hover: rgba(255, 255, 255, 0.16);
+  --desktop-border: rgba(255, 255, 255, 0.09);
+  --desktop-chrome: rgba(16, 16, 18, 0.66);
+  --desktop-text: #ffffff;
+  --desktop-muted: rgba(255, 255, 255, 0.64);
+  --desktop-dim: rgba(255, 255, 255, 0.42);
+  --desktop-accent: #1ed760;
+  --desktop-accent-contrast: #000000;
+  --skin-card: rgba(255, 255, 255, 0.045);
+  --skin-card-border: rgba(255, 255, 255, 0.075);
+}
+
+/* The cover, blown up and blurred into a glow, then darkened from the top
+   down so the panes stay readable. */
+html[data-skin="ambient"] .desktop-skin-art {
+  display: block;
+  inset: -20%;
+  opacity: 0.85;
+  filter: blur(110px) saturate(1.7) brightness(0.8);
+}
+
+html[data-skin="ambient"] .desktop-skin-scene {
+  background:
+    radial-gradient(45% 45% at 72% 38%, rgba(170, 32, 96, 0.32), transparent 72%),
+    radial-gradient(40% 50% at 20% 80%, rgba(40, 60, 160, 0.22), transparent 70%),
+    linear-gradient(180deg, rgba(11, 11, 13, 0.25) 0%, rgba(11, 11, 13, 0.72) 100%);
+}
+
+html[data-skin="ambient"] :is(.desktop-sidebar, .desktop-main, .desktop-now-panel) {
+  border: 1px solid var(--skin-card-border);
+  border-radius: 14px;
+  background: rgba(14, 14, 16, 0.6);
+  backdrop-filter: blur(28px) saturate(1.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+html[data-skin="ambient"] .desktop-main {
+  border-right: 10px solid transparent;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    1px 0 0 var(--skin-card-border);
+}
+
+html[data-skin="ambient"] .desktop-video-backdrop {
+  border-radius: 14px;
+}
+
+/* One bar along the bottom, closer to the backdrop than the panes above it. */
+html[data-skin="ambient"] .desktop-player {
+  border-radius: 14px;
+  background: rgba(8, 8, 10, 0.55);
+  backdrop-filter: blur(28px);
+}
+
+html[data-skin="ambient"] .desktop-nav-item {
+  border-radius: 8px;
+}
+
+html[data-skin="ambient"] .desktop-nav-item.is-active {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+/* The page opens on a banner, the way Spotify leads its home with a release. */
+html[data-skin="ambient"] .desktop-hero {
+  padding: 26px 28px;
+  border: 1px solid var(--skin-card-border);
+  border-radius: 14px;
+  background:
+    linear-gradient(100deg, rgba(0, 0, 0, 0.55) 30%, rgba(0, 0, 0, 0.1)),
+    var(--skin-artwork) center 30% / cover no-repeat,
+    var(--desktop-surface);
+}
+
+html[data-skin="ambient"] .desktop-hero h1 {
+  font-size: clamp(28px, 3vw, 40px);
+}
+
+html[data-skin="ambient"] .desktop-kicker {
+  color: var(--desktop-accent);
+}
+
+html[data-skin="ambient"] :is(.desktop-track-card, .desktop-playlist-grid button) {
+  border: 1px solid var(--skin-card-border);
+  border-radius: 12px;
+  background: var(--skin-card);
+}
+
+html[data-skin="ambient"] :is(.desktop-track-card, .desktop-playlist-grid button):hover {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+html[data-skin="ambient"] :is(.desktop-track-art, .desktop-playlist-grid button > div) {
+  border-radius: 8px;
+}
+
+html[data-skin="ambient"] .desktop-chip-list button {
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+html[data-skin="ambient"] .desktop-filter-chip.is-on {
+  background: var(--desktop-accent);
+  color: #000000;
+}
+
+html[data-skin="ambient"] .desktop-playlist-list button {
+  border-radius: 8px;
+}
+
+html[data-skin="ambient"] .desktop-section-heading.is-sticky {
+  background: rgba(14, 14, 16, 0.72);
+}
+
+html[data-skin="ambient"] .desktop-now-panel-art {
+  border-radius: 12px;
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.5);
+}
+
+html[data-skin="ambient"] .desktop-now-panel-meta {
+  padding: 14px 16px;
+  border: 1px solid var(--skin-card-border);
+  border-radius: 12px;
+  background: var(--skin-card);
+}
+
+html[data-skin="ambient"] .desktop-now-panel-meta h3 {
+  font-size: 22px;
+}
+
+html[data-skin="ambient"] .desktop-now-panel-lyrics-box {
+  border: 1px solid var(--skin-card-border);
+  border-radius: 12px;
+  background: var(--skin-card);
+}
+
+html[data-skin="ambient"] .desktop-now-panel-synced p.is-active {
+  color: #ffffff;
+}
+
+/* ========================================================================== */
+/* Editorial                                                                 */
+/* ========================================================================== */
+
+html[data-skin="editorial"] body.desktop-window {
+  --desktop-bg: #f2ece1;
+  --desktop-bg-raised: #fbf7ef;
+  --desktop-surface: rgba(28, 25, 21, 0.05);
+  --desktop-surface-strong: rgba(28, 25, 21, 0.08);
+  --desktop-surface-hover: rgba(28, 25, 21, 0.13);
+  --desktop-border: rgba(28, 25, 21, 0.22);
+  --desktop-chrome: transparent;
+  --desktop-text: #1c1915;
+  --desktop-muted: rgba(28, 25, 21, 0.66);
+  --desktop-dim: rgba(28, 25, 21, 0.44);
+  --desktop-accent: #d2412a;
+  --desktop-accent-contrast: #fbf7ef;
+  --skin-ink: #1c1915;
+  --skin-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --skin-mono: "Cascadia Mono", Consolas, "SFMono-Regular", Menlo, monospace;
+}
+
+/* Paper: a fine grain over a warm stock, darker toward the edges. */
+html[data-skin="editorial"] .desktop-skin-backdrop {
+  background: radial-gradient(120% 90% at 50% 40%, #f6f1e7 0%, #ebe3d4 100%);
+}
+
+html[data-skin="editorial"] .desktop-skin-scene {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.11 0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0.11 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+html[data-skin="editorial"] .desktop-sidebar {
+  border-right: 0;
+  background: transparent;
+  /* A double rule down the fold. */
+  box-shadow:
+    inset -1px 0 0 var(--skin-ink),
+    inset -5px 0 0 transparent,
+    inset -6px 0 0 rgba(28, 25, 21, 0.35);
+}
+
+html[data-skin="editorial"] .desktop-brand-mark {
+  border-radius: 0;
+  filter: grayscale(1) contrast(1.15);
+  box-shadow: 3px 3px 0 var(--desktop-accent);
+}
+
+html[data-skin="editorial"] .desktop-brand-name {
+  font-family: var(--skin-serif);
+  font-size: 30px;
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+html[data-skin="editorial"] .desktop-brand > div::after {
+  content: "The Listening Issue";
+  display: block;
+  margin-top: 6px;
+  color: var(--desktop-accent);
+  font-family: var(--skin-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* A table of contents rather than a menu. */
+html[data-skin="editorial"] .desktop-nav {
+  gap: 0;
+  counter-reset: skin-nav;
+  border-top: 2px solid var(--skin-ink);
+}
+
+html[data-skin="editorial"] .desktop-nav-item {
+  counter-increment: skin-nav;
+  min-height: 48px;
+  border-bottom: 1px solid rgba(28, 25, 21, 0.18);
+  border-radius: 0;
+  color: var(--skin-ink);
+  font-family: var(--skin-serif);
+  font-size: 18px;
+  font-weight: 500;
+}
+
+html[data-skin="editorial"] .desktop-nav-item::before {
+  content: counter(skin-nav, decimal-leading-zero);
+  min-width: 18px;
+  color: var(--desktop-dim);
+  font-family: var(--skin-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+html[data-skin="editorial"] .desktop-nav-item:hover {
+  background: var(--desktop-surface);
+}
+
+html[data-skin="editorial"] .desktop-nav-item.is-active {
+  background: transparent;
+  color: var(--skin-ink);
+  font-style: italic;
+  box-shadow: inset 4px 0 0 var(--desktop-accent);
+}
+
+html[data-skin="editorial"] .desktop-nav-item.is-active::before {
+  color: var(--desktop-accent);
+}
+
+/* Icons read as app chrome; the numbers stand in for them. The narrow window
+   keeps them, since there the labels are hidden. */
+@media (min-width: 981px) {
+  html[data-skin="editorial"] .desktop-nav-item svg {
+    display: none;
+  }
+}
+
+html[data-skin="editorial"] .desktop-update-button {
+  border: 1px solid var(--skin-ink);
+  border-radius: 0;
+  background: transparent;
+}
+
+html[data-skin="editorial"] .desktop-account {
+  border-top: 2px solid var(--skin-ink);
+}
+
+html[data-skin="editorial"] .desktop-account-avatar {
+  border-radius: 0;
+  filter: grayscale(1);
+}
+
+html[data-skin="editorial"] .desktop-main {
+  background: transparent;
+}
+
+html[data-skin="editorial"] .desktop-hero {
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--skin-ink);
+}
+
+html[data-skin="editorial"] .desktop-kicker {
+  padding-top: 10px;
+  border-top: 4px double var(--skin-ink);
+  color: var(--desktop-accent);
+  font-family: var(--skin-mono);
+  letter-spacing: 0.22em;
+}
+
+html[data-skin="editorial"] .desktop-hero h1 {
+  font-family: var(--skin-serif);
+  font-size: clamp(40px, 4.6vw, 64px);
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+}
+
+html[data-skin="editorial"] .desktop-hero p {
+  font-family: var(--skin-serif);
+  font-size: 17px;
+  font-weight: 400;
+}
+
+html[data-skin="editorial"] .desktop-section-heading {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--skin-ink);
+}
+
+html[data-skin="editorial"] .desktop-section-heading h2 {
+  font-family: var(--skin-serif);
+  font-size: 28px;
+  font-style: italic;
+  font-weight: 600;
+}
+
+html[data-skin="editorial"] .desktop-section-heading.is-sticky {
+  background: color-mix(in srgb, #f2ece1 92%, transparent);
+}
+
+html[data-skin="editorial"] :is(.desktop-track-card, .desktop-playlist-grid button) {
+  border-radius: 0;
+}
+
+html[data-skin="editorial"] :is(.desktop-track-card, .desktop-playlist-grid button):hover {
+  background: transparent;
+}
+
+html[data-skin="editorial"] :is(.desktop-track-art, .desktop-playlist-grid button > div) {
+  border: 1px solid var(--skin-ink);
+  border-radius: 0;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+/* Lifted off the page like a print with its shadow block behind it. */
+html[data-skin="editorial"]
+:is(.desktop-track-card:hover .desktop-track-art, .desktop-playlist-grid button:hover > div) {
+  transform: translate(-4px, -4px);
+  box-shadow: 6px 6px 0 var(--skin-ink);
+}
+
+html[data-skin="editorial"] :is(.desktop-track-card p, .desktop-playlist-grid strong) {
+  font-family: var(--skin-serif);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+html[data-skin="editorial"] .desktop-track-art span {
+  border-radius: 0;
+  box-shadow: 3px 3px 0 var(--skin-ink);
+}
+
+html[data-skin="editorial"] .desktop-chip-list button {
+  border: 1px solid var(--skin-ink);
+  border-radius: 0;
+  background: transparent;
+  font-family: var(--skin-serif);
+  font-size: 15px;
+  font-style: italic;
+  font-weight: 500;
+}
+
+html[data-skin="editorial"] .desktop-chip-list button:hover {
+  background: var(--skin-ink);
+  color: #f2ece1;
+}
+
+html[data-skin="editorial"] :is(.desktop-playlist-list span, .desktop-row-art, .library-art) {
+  border: 1px solid var(--skin-ink);
+  border-radius: 0;
+}
+
+html[data-skin="editorial"] :is(.desktop-playlist-list button, .library-tracks li) {
+  border-radius: 0;
+}
+
+html[data-skin="editorial"] .library-track-name strong {
+  font-family: var(--skin-serif);
+  font-size: 15px;
+}
+
+html[data-skin="editorial"] :is(.desktop-search-row, .library-search-input) {
+  border: 0;
+  border-bottom: 2px solid var(--skin-ink);
+  border-radius: 0;
+  background: transparent;
+}
+
+html[data-skin="editorial"] .desktop-search-row input,
+html[data-skin="editorial"] .library-search-input input {
+  font-family: var(--skin-serif);
+  font-size: 18px;
+  font-style: italic;
+  font-weight: 400;
+}
+
+html[data-skin="editorial"] :is(.desktop-filter-chip, .library-source-tabs) {
+  border: 1px solid var(--skin-ink);
+  border-radius: 0;
+  background: transparent;
+}
+
+html[data-skin="editorial"] .library-source-tabs button {
+  border-radius: 0;
+}
+
+html[data-skin="editorial"] .desktop-filter-chip.is-on {
+  background: var(--skin-ink);
+  color: #f2ece1;
+}
+
+html[data-skin="editorial"] .desktop-back-button {
+  border: 1px solid var(--skin-ink);
+  background: transparent;
+}
+
+html[data-skin="editorial"] .desktop-play-button {
+  background: var(--skin-ink);
+  color: #f2ece1;
+  box-shadow: 3px 3px 0 var(--desktop-accent);
+}
+
+html[data-skin="editorial"] .desktop-player {
+  border-top: 4px double var(--skin-ink);
+  background: rgba(242, 236, 225, 0.72);
+}
+
+html[data-skin="editorial"] .desktop-now-art {
+  border: 1px solid var(--skin-ink);
+  border-radius: 0;
+}
+
+html[data-skin="editorial"] .desktop-now-copy p {
+  font-family: var(--skin-serif);
+  font-size: 17px;
+  font-weight: 700;
+}
+
+html[data-skin="editorial"] .desktop-now-copy span {
+  color: var(--desktop-accent);
+  font-family: var(--skin-serif);
+  font-size: 13px;
+  font-style: italic;
+}
+
+html[data-skin="editorial"] .desktop-now-panel {
+  border-left: 1px solid var(--skin-ink);
+  background: transparent;
+}
+
+html[data-skin="editorial"] :is(.desktop-now-panel-head h2, .desktop-now-panel-section h4) {
+  color: var(--skin-ink);
+  font-family: var(--skin-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+}
+
+html[data-skin="editorial"] .desktop-now-panel-art {
+  border: 1px solid var(--skin-ink);
+  border-radius: 0;
+  box-shadow: 8px 8px 0 var(--skin-ink);
+}
+
+html[data-skin="editorial"] .desktop-now-panel-meta h3 {
+  font-family: var(--skin-serif);
+  font-size: 26px;
+  font-style: italic;
+  font-weight: 600;
+}
+
+html[data-skin="editorial"] .desktop-now-panel-lyrics-box {
+  border-top: 1px solid var(--skin-ink);
+  border-radius: 0;
+  background: transparent;
+}
+
+html[data-skin="editorial"] .desktop-now-panel-synced p {
+  font-family: var(--skin-serif);
+  font-size: 18px;
+  font-weight: 500;
+}
+
+html[data-skin="editorial"] .desktop-now-panel-synced p.is-active {
+  font-style: italic;
+}
+
+html[data-skin="editorial"] .desktop-shell * {
+  scrollbar-color: rgba(28, 25, 21, 0.4) transparent;
+}
+
+html[data-skin="editorial"] .desktop-shell *::-webkit-scrollbar-thumb {
+  border-radius: 0;
+  background: rgba(28, 25, 21, 0.35);
+}
+
+/* ========================================================================== */
+/* Neon Drive                                                                */
+/* ========================================================================== */
+
+html[data-skin="neon"] body.desktop-window {
+  --desktop-bg: #0c0519;
+  --desktop-bg-raised: #190b31;
+  --desktop-surface: rgba(157, 120, 255, 0.07);
+  --desktop-surface-strong: rgba(157, 120, 255, 0.13);
+  --desktop-surface-hover: rgba(255, 63, 200, 0.18);
+  --desktop-border: rgba(255, 63, 200, 0.3);
+  --desktop-chrome: rgba(12, 5, 26, 0.82);
+  --desktop-text: #f8efff;
+  --desktop-muted: rgba(214, 196, 255, 0.74);
+  --desktop-dim: rgba(214, 196, 255, 0.46);
+  --desktop-accent: #ff3fc8;
+  --desktop-accent-contrast: #ffffff;
+  --skin-pink: #ff3fc8;
+  --skin-cyan: #22e4ff;
+  --skin-mono: "Cascadia Mono", Consolas, "SFMono-Regular", Menlo, monospace;
+}
+
+/* A synthwave horizon: a striped sun sinking behind a grid that rolls toward
+   the viewer. */
+html[data-skin="neon"] .desktop-skin-backdrop {
+  background: linear-gradient(
+    180deg,
+    #06020e 0%,
+    #150530 38%,
+    #3a0b56 58%,
+    #5c1066 62%,
+    #06020e 62.2%
+  );
+}
+
+/* Sky only, so the sun sets behind the horizon instead of showing through
+   the floor. */
+html[data-skin="neon"] .desktop-skin-scene {
+  inset: 0 0 38% 0;
+  overflow: hidden;
+  background: radial-gradient(40% 50% at 50% 92%, rgba(255, 63, 200, 0.38), transparent 72%);
+}
+
+html[data-skin="neon"] .desktop-skin-scene::before {
+  content: "";
+  position: absolute;
+  bottom: calc(min(44vw, 540px) * -0.3);
+  left: 50%;
+  width: min(44vw, 540px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffe66d 0%, #ff9f43 32%, #ff3fc8 68%, #8a2be2 100%);
+  transform: translateX(-50%);
+  mask-image: linear-gradient(
+    180deg,
+    #000 0 44%,
+    transparent 44% 47%,
+    #000 47% 54%,
+    transparent 54% 58%,
+    #000 58% 63%,
+    transparent 63% 68%,
+    #000 68% 72%,
+    transparent 72% 78%,
+    #000 78%
+  );
+}
+
+/*
+ * The floor tilts toward the viewer from the horizon and rolls one cell per
+ * loop. Moved with a transform, so it runs on the compositor rather than
+ * repainting a window-sized grid every frame. Kept at 400px deep: a longer
+ * plane would reach past the camera at this perspective.
+ */
+html[data-skin="neon"] .desktop-skin-backdrop {
+  perspective: 400px;
+  perspective-origin: 50% 62%;
+}
+
+html[data-skin="neon"] .desktop-skin-backdrop::before {
+  content: "";
+  position: absolute;
+  top: 62%;
+  left: -60%;
+  width: 220%;
+  height: 400px;
+  background-color: #06020e;
+  background-image:
+    linear-gradient(rgba(255, 63, 200, 0.8) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(34, 228, 255, 0.55) 2px, transparent 2px);
+  background-size: 60px 60px;
+  /* The cell rolling in starts above the horizon; it stays hidden. */
+  mask-image: linear-gradient(180deg, transparent 0 60px, #000 60px);
+  transform-origin: 50% 0;
+  transform: rotateX(60deg) translateY(-60px);
+  animation: skin-neon-grid 2.2s linear infinite;
+}
+
+html[data-skin="neon"] .desktop-skin-backdrop.has-image::before {
+  display: none;
+}
+
+@keyframes skin-neon-grid {
+  to {
+    transform: rotateX(60deg) translateY(0);
+  }
+}
+
+/* The horizon: a glowing line with haze below it, which also softens where
+   the floor begins as it rolls in. */
+html[data-skin="neon"] .desktop-skin-art {
+  z-index: 1;
+  display: block;
+  top: calc(62% - 8px);
+  bottom: auto;
+  height: 64px;
+  background: linear-gradient(
+    180deg,
+    transparent 0,
+    #ff3fc8 7px,
+    #ffd6f4 8px,
+    #ff3fc8 10px,
+    rgba(70, 12, 92, 0.95) 18px,
+    rgba(6, 2, 14, 0) 100%
+  );
+}
+
+/* Scanlines over everything behind the panes, image included. */
+html[data-skin="neon"] .desktop-skin-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px);
+}
+
+html[data-skin="neon"] :is(.desktop-sidebar, .desktop-main, .desktop-now-panel, .desktop-player) {
+  border-radius: 14px;
+  background: rgba(12, 5, 26, 0.82);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 63, 200, 0.38),
+    inset 0 0 48px rgba(255, 63, 200, 0.06),
+    0 0 28px rgba(255, 63, 200, 0.2);
+}
+
+html[data-skin="neon"] .desktop-video-backdrop {
+  border-radius: 14px;
+}
+
+html[data-skin="neon"] .desktop-player {
+  box-shadow:
+    inset 0 0 0 1px rgba(34, 228, 255, 0.42),
+    inset 0 0 48px rgba(34, 228, 255, 0.06),
+    0 0 28px rgba(34, 228, 255, 0.2);
+}
+
+html[data-skin="neon"] .desktop-brand-name {
+  background: linear-gradient(90deg, var(--skin-cyan), var(--skin-pink));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+html[data-skin="neon"] .desktop-brand-mark {
+  box-shadow: 0 0 18px rgba(255, 63, 200, 0.55);
+}
+
+html[data-skin="neon"] .desktop-nav-item {
+  border-radius: 4px;
+  font-family: var(--skin-mono);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+html[data-skin="neon"] .desktop-nav-item:hover {
+  background: rgba(34, 228, 255, 0.08);
+  color: #ffffff;
+}
+
+html[data-skin="neon"] .desktop-nav-item.is-active {
+  background: linear-gradient(90deg, rgba(255, 63, 200, 0.3), transparent);
+  box-shadow: inset 3px 0 0 var(--skin-pink);
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 63, 200, 0.9);
+}
+
+html[data-skin="neon"] .desktop-nav-item.is-active svg {
+  color: var(--skin-cyan);
+  filter: drop-shadow(0 0 6px var(--skin-cyan));
+}
+
+html[data-skin="neon"] .desktop-update-button {
+  border-color: rgba(34, 228, 255, 0.4);
+  border-radius: 6px;
+}
+
+html[data-skin="neon"] .desktop-kicker {
+  color: var(--skin-cyan);
+  font-family: var(--skin-mono);
+  letter-spacing: 0.2em;
+}
+
+html[data-skin="neon"] .desktop-kicker::before {
+  content: "> ";
+  color: var(--skin-pink);
+}
+
+html[data-skin="neon"] .desktop-kicker::after {
+  content: "_";
+  animation: skin-neon-blink 1.1s steps(1) infinite;
+}
+
+@keyframes skin-neon-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+html[data-skin="neon"] .desktop-hero h1 {
+  padding-bottom: 4px;
+  background: linear-gradient(90deg, var(--skin-cyan) 0%, var(--skin-pink) 55%, #ff9f43 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: clamp(30px, 3.4vw, 46px);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  filter: drop-shadow(0 0 14px rgba(255, 63, 200, 0.45));
+}
+
+html[data-skin="neon"] .desktop-section-heading h2 {
+  color: var(--skin-cyan);
+  font-size: 15px;
+  letter-spacing: 0.2em;
+  text-shadow: 0 0 12px rgba(34, 228, 255, 0.7);
+  text-transform: uppercase;
+}
+
+html[data-skin="neon"] .desktop-section-heading.is-sticky {
+  background: rgba(12, 5, 26, 0.9);
+  box-shadow: inset 0 -1px 0 rgba(255, 63, 200, 0.35);
+}
+
+html[data-skin="neon"] :is(.desktop-track-card, .desktop-playlist-grid button) {
+  border-radius: 10px;
+}
+
+html[data-skin="neon"] :is(.desktop-track-card, .desktop-playlist-grid button):hover {
+  background: rgba(255, 63, 200, 0.08);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 63, 200, 0.5),
+    0 0 22px rgba(255, 63, 200, 0.28);
+}
+
+html[data-skin="neon"] :is(.desktop-track-art, .desktop-playlist-grid button > div) {
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px rgba(34, 228, 255, 0.28);
+}
+
+html[data-skin="neon"] .desktop-track-art span,
+html[data-skin="neon"] .desktop-play-button {
+  background: linear-gradient(135deg, var(--skin-pink), #ff9f43);
+  color: #1a0633;
+  box-shadow: 0 0 22px rgba(255, 63, 200, 0.7);
+}
+
+html[data-skin="neon"] .desktop-chip-list button {
+  border: 1px solid rgba(34, 228, 255, 0.45);
+  border-radius: 4px;
+  background: transparent;
+  color: #9df5ff;
+  font-family: var(--skin-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+html[data-skin="neon"] .desktop-chip-list button:hover {
+  background: rgba(34, 228, 255, 0.12);
+  box-shadow: 0 0 16px rgba(34, 228, 255, 0.4);
+}
+
+html[data-skin="neon"] :is(.desktop-search-row, .library-search-input) {
+  border: 1px solid rgba(255, 63, 200, 0.45);
+  border-radius: 6px;
+  background: rgba(6, 2, 14, 0.7);
+}
+
+html[data-skin="neon"] :is(.desktop-search-row, .library-search-input):focus-within {
+  box-shadow: 0 0 18px rgba(255, 63, 200, 0.45);
+}
+
+html[data-skin="neon"] :is(.desktop-filter-chip, .library-source-tabs) {
+  border: 1px solid rgba(34, 228, 255, 0.4);
+  border-radius: 6px;
+  background: transparent;
+}
+
+html[data-skin="neon"] .library-source-tabs button {
+  border-radius: 4px;
+}
+
+html[data-skin="neon"] .desktop-filter-chip.is-on {
+  background: var(--skin-cyan);
+  color: #0c0519;
+  box-shadow: 0 0 16px rgba(34, 228, 255, 0.55);
+}
+
+html[data-skin="neon"] .desktop-now-art {
+  box-shadow:
+    0 0 0 1px rgba(255, 63, 200, 0.5),
+    0 0 16px rgba(255, 63, 200, 0.35);
+}
+
+html[data-skin="neon"] .desktop-now-copy p {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.35);
+}
+
+html[data-skin="neon"] .desktop-now-copy span {
+  color: #ff7ad9;
+}
+
+html[data-skin="neon"] :is(.desktop-now-panel-head h2, .desktop-now-panel-section h4) {
+  color: var(--skin-cyan);
+  font-family: var(--skin-mono);
+  letter-spacing: 0.2em;
+}
+
+html[data-skin="neon"] .desktop-now-panel-art {
+  box-shadow:
+    0 0 0 1px rgba(255, 63, 200, 0.5),
+    0 0 30px rgba(255, 63, 200, 0.35);
+}
+
+html[data-skin="neon"] .desktop-now-panel-lyrics-box {
+  background: rgba(6, 2, 14, 0.55);
+  box-shadow: inset 0 0 0 1px rgba(34, 228, 255, 0.2);
+}
+
+html[data-skin="neon"] .desktop-now-panel-synced p.is-active {
+  color: #ffffff;
+  text-shadow:
+    0 0 8px var(--skin-pink),
+    0 0 20px rgba(255, 63, 200, 0.6);
+}
+
+html[data-skin="neon"] .library-tracks li.is-current .library-track-name strong {
+  text-shadow: 0 0 10px rgba(255, 63, 200, 0.7);
+}
+
+html[data-skin="neon"] .desktop-shell * {
+  scrollbar-color: rgba(255, 63, 200, 0.5) transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-skin="neon"] .desktop-skin-backdrop::before,
+  html[data-skin="neon"] .desktop-kicker::after {
+    animation: none;
+  }
+}
+
+/* Settings previews ---------------------------------------------------------- */
+
+/* A thumbnail of each skin: sidebar, a few cards and the player bar. */
+.skin-preview {
+  position: relative;
+  display: grid;
+  grid-template-columns: 26% minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) 18%;
+  gap: 5px;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  padding: 6px;
+  border-radius: 10px;
+}
+
+.skin-preview > i {
+  display: block;
+  min-width: 0;
+  min-height: 0;
+}
+
+.skin-preview-side {
+  grid-row: 1 / 3;
+}
+
+.skin-preview-main {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-content: end;
+  gap: 5px;
+  padding: 7px;
+}
+
+.skin-preview-main > b {
+  display: block;
+  aspect-ratio: 1;
+}
+
+.skin-preview--liquid-glass {
+  background:
+    radial-gradient(55% 65% at 8% 12%, #ff7a45 0%, transparent 62%),
+    radial-gradient(50% 60% at 92% 6%, #8a63ff 0%, transparent 64%),
+    radial-gradient(65% 65% at 82% 96%, #1ec8ff 0%, transparent 62%),
+    radial-gradient(55% 55% at 16% 98%, #ff4fa3 0%, transparent 60%),
+    linear-gradient(135deg, #1c2466, #3b1a6b);
+}
+
+.skin-preview--liquid-glass > i {
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 1px 0 0 rgba(255, 255, 255, 0.2);
+}
+
+.skin-preview--liquid-glass .skin-preview-bar {
+  border-radius: 999px;
+}
+
+.skin-preview--liquid-glass .skin-preview-main > b {
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.skin-preview--ambient {
+  background:
+    radial-gradient(60% 60% at 70% 35%, rgba(190, 40, 110, 0.75), transparent 72%),
+    radial-gradient(50% 60% at 15% 85%, rgba(50, 70, 190, 0.45), transparent 70%), #0b0b0d;
+}
+
+.skin-preview--ambient > i {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  background: rgba(14, 14, 16, 0.62);
+}
+
+.skin-preview--ambient .skin-preview-main > b {
+  border-radius: 3px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.08));
+}
+
+.skin-preview--ambient .skin-preview-main > b:first-child {
+  background: #1ed760;
+}
+
+.skin-preview--editorial {
+  gap: 0;
+  padding: 0;
+  border-radius: 4px;
+  background: #f2ece1;
+}
+
+.skin-preview--editorial .skin-preview-side {
+  box-shadow:
+    inset -1px 0 0 #1c1915,
+    inset -3px 0 0 transparent,
+    inset -4px 0 0 rgba(28, 25, 21, 0.4);
+  background: repeating-linear-gradient(
+    180deg,
+    transparent 0 12px,
+    rgba(28, 25, 21, 0.3) 12px 13px
+  );
+}
+
+.skin-preview--editorial .skin-preview-main {
+  gap: 6px;
+  padding: 9px;
+}
+
+.skin-preview--editorial .skin-preview-main::before {
+  content: "";
+  grid-column: 1 / -1;
+  height: 9px;
+  width: 70%;
+  margin-bottom: 4px;
+  background: #1c1915;
+}
+
+.skin-preview--editorial .skin-preview-main > b {
+  border: 1px solid #1c1915;
+  box-shadow: 3px 3px 0 #1c1915;
+}
+
+.skin-preview--editorial .skin-preview-main > b:nth-child(2) {
+  background: #d2412a;
+}
+
+.skin-preview--editorial .skin-preview-bar {
+  border-top: 3px double #1c1915;
+}
+
+.skin-preview--neon {
+  background:
+    linear-gradient(transparent 58%, #06020e 58%),
+    radial-gradient(30% 45% at 60% 45%, #ff9f43 0%, #ff3fc8 55%, transparent 58%),
+    linear-gradient(180deg, #06020e 0%, #3a0b56 58%);
+}
+
+.skin-preview--neon::after {
+  content: "";
+  position: absolute;
+  inset: 58% 0 0;
+  background-image:
+    linear-gradient(rgba(255, 63, 200, 0.7) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 228, 255, 0.5) 1px, transparent 1px);
+  background-size: 12px 8px;
+}
+
+.skin-preview--neon > i {
+  position: relative;
+  z-index: 1;
+  border-radius: 4px;
+  background: rgba(12, 5, 26, 0.8);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 63, 200, 0.55),
+    0 0 8px rgba(255, 63, 200, 0.35);
+}
+
+.skin-preview--neon .skin-preview-bar {
+  box-shadow:
+    inset 0 0 0 1px rgba(34, 228, 255, 0.6),
+    0 0 8px rgba(34, 228, 255, 0.35);
+}
+
+.skin-preview--neon .skin-preview-main > b {
+  border-radius: 2px;
+  background: linear-gradient(135deg, #ff3fc8, #ff9f43);
+  opacity: 0.8;
+}
