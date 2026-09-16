@@ -161,8 +161,10 @@ jobs:
         if: runner.os == 'Linux'
         shell: bash
         run: |
-          # linuxdeploy also scans yt-dlp's libraries, which live outside system search paths.
-          echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/apps/desktop/src-tauri/resources/audio/linux-x86_64/yt-dlp/_internal${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" >> "$GITHUB_ENV"
+          # linuxdeploy also scans yt-dlp's libraries, some of which (libpython) only exist in
+          # yt-dlp's _internal folder. System dirs must come first: _internal also ships an old
+          # libz that breaks system tools linuxdeploy runs, like gtk-query-immodules-3.0.
+          echo "LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:/lib/x86_64-linux-gnu:$GITHUB_WORKSPACE/apps/desktop/src-tauri/resources/audio/linux-x86_64/yt-dlp/_internal${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" >> "$GITHUB_ENV"
 
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
