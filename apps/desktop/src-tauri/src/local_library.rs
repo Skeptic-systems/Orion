@@ -134,14 +134,47 @@ fn update_counts(app: &AppHandle, state: &LocalPlaylist) -> Result<(), String> {
     write_atomic(&counts_path(app, &state.account_id)?, &bytes)
 }
 
+/// The URI prefix each provider's tracks must carry, and with it the set of
+/// providers a playlist may hold at all.
+fn uri_prefix(provider: &str) -> Option<&'static str> {
+    match provider {
+        "spotify" => Some("spotify:track:"),
+        "youtube" => Some("youtube:video:"),
+        "soundcloud" => Some("soundcloud:track:"),
+        "jellyfin" => Some("jellyfin:track:"),
+        _ => None,
+    }
+}
+
+/// Providers whose tracks live only in Orion's own copy of a playlist: they
+/// cannot be written back to Spotify, so they are what `local_only` counts.
+const ADDABLE: [&str; 3] = ["youtube", "soundcloud", "jellyfin"];
+
+fn shaped_like_a_track(track: &Value) -> bool {
+    track["id"].is_string()
+        && track["name"].is_string()
+        && track["durationMs"].is_number()
+        && track["artists"].is_array()
+        && track["album"]["images"].is_array()
+}
+
 fn validate_track(track: &Value, provider: &str) -> Result<(), String> {
-    if track["provider"] != provider || !track["id"].is_string() || !track["name"].is_string()
-        || !track["durationMs"].is_number() || !track["artists"].is_array() || !track["album"]["images"].is_array() {
+    if track["provider"] != provider || !shaped_like_a_track(track) {
         return Err("Invalid playlist track".into());
     }
-    let prefix = if provider == "youtube" { "youtube:video:" } else { "spotify:track:" };
+    let prefix = uri_prefix(provider).ok_or("Unknown track provider")?;
     if !track["uri"].as_str().is_some_and(|s| s.starts_with(prefix)) { return Err("Invalid track URI".into()); }
     Ok(())
+}
+
+/// A track being added by hand: any provider Orion plays itself, since none of
+/// them can be written back to the Spotify playlist either way.
+fn validate_addable(track: &Value) -> Result<(), String> {
+    let provider = track["provider"].as_str().ok_or("Invalid playlist track")?;
+    if !ADDABLE.contains(&provider) {
+        return Err("Only YouTube, SoundCloud and Jellyfin tracks can be added here".into());
+    }
+    validate_track(track, provider)
 }
 
 fn new_entry(track: Value, remote_key: Option<String>) -> Entry {
@@ -181,7 +214,7 @@ fn reconcile(state: &mut LocalPlaylist, tracks: Vec<Value>) -> Result<(), String
 fn edit(state: &mut LocalPlaylist, action: Edit) -> Result<(), String> {
     match action {
         Edit::Add { track } => {
-            validate_track(&track, "youtube")?;
+            validate_addable(&track)?;
             state.entries.push(new_entry(track, None));
         }
         Edit::Move { entry_id, before_id } => {
@@ -194,7 +227,7 @@ fn edit(state: &mut LocalPlaylist, action: Edit) -> Result<(), String> {
         }
         Edit::Remove { entry_id } => {
             let entry = state.entries.iter().find(|e| e.entry_id == entry_id).ok_or("Playlist entry no longer exists")?;
-            if entry.remote_key.is_some() { return Err("Only local YouTube entries can be removed here".into()); }
+            if entry.remote_key.is_some() { return Err("Only tracks added in Orion can be removed here".into()); }
             state.entries.retain(|e| e.entry_id != entry_id);
         }
     }
@@ -202,7 +235,8 @@ fn edit(state: &mut LocalPlaylist, action: Edit) -> Result<(), String> {
     Ok(())
 }
 
-/// How many YouTube songs each playlist of the account holds in Orion.
+/// How many songs each playlist of the account holds in Orion alone — the
+/// YouTube, SoundCloud and Jellyfin ones Spotify knows nothing about.
 #[tauri::command]
 pub async fn local_playlist_counts(app: AppHandle, account_id: String) -> Result<HashMap<String, usize>, String> {
     if account_id.is_empty() { return Err("Missing account".into()); }
@@ -241,7 +275,8 @@ mod tests {
     use super::*;
     use serde_json::json;
     fn track(id: &str, source: &str) -> Value {
-        json!({"id":id,"name":id,"provider":source,"uri":format!("{}:{}:{id}",source,if source == "spotify" {"track"} else {"video"}),"durationMs":1000,"artists":[],"album":{"images":[]}})
+        let kind = if source == "youtube" { "video" } else { "track" };
+        json!({"id":id,"name":id,"provider":source,"uri":format!("{source}:{kind}:{id}"),"durationMs":1000,"artists":[],"album":{"images":[]}})
     }
     fn empty() -> LocalPlaylist { LocalPlaylist { version:1, revision:0, account_id:"user".into(), playlist_id:"list".into(), customized:false, snapshot_id:None, entries:vec![] } }
     #[test]
@@ -266,12 +301,34 @@ mod tests {
         assert_eq!(state.entries[1].entry_id, first);
     }
     #[test]
-    fn only_youtube_entries_count_as_local() {
+    fn only_orion_added_entries_count_as_local() {
         let mut state = empty();
         reconcile(&mut state, vec![track("a","spotify"), track("b","spotify")]).unwrap();
         assert_eq!(local_only(&state), 0);
         edit(&mut state, Edit::Add { track:track("dQw4w9WgXcQ","youtube") }).unwrap();
-        assert_eq!(local_only(&state), 1);
+        edit(&mut state, Edit::Add { track:track("user/song","soundcloud") }).unwrap();
+        edit(&mut state, Edit::Add { track:track("abc123","jellyfin") }).unwrap();
+        assert_eq!(local_only(&state), 3);
+    }
+    #[test]
+    fn every_self_played_provider_can_be_added() {
+        for source in ["youtube", "soundcloud", "jellyfin"] {
+            let mut state = empty();
+            edit(&mut state, Edit::Add { track:track("x", source) }).unwrap_or_else(|e| panic!("{source}: {e}"));
+            assert_eq!(state.entries.len(), 1);
+        }
+    }
+    #[test]
+    fn unknown_providers_are_refused() {
+        let mut state = empty();
+        let track = json!({"id":"x","name":"x","provider":"tidal","uri":"tidal:track:x","durationMs":1,"artists":[],"album":{"images":[]}});
+        assert!(edit(&mut state, Edit::Add { track }).is_err());
+    }
+    #[test]
+    fn a_track_whose_uri_does_not_match_its_provider_is_refused() {
+        let mut state = empty();
+        let track = json!({"id":"x","name":"x","provider":"soundcloud","uri":"youtube:video:x","durationMs":1,"artists":[],"album":{"images":[]}});
+        assert!(edit(&mut state, Edit::Add { track }).is_err());
     }
     #[test]
     fn spotify_cannot_be_added_or_deleted_locally() {

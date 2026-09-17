@@ -49,6 +49,8 @@ import { useUpdaterStore } from "../../lib/updaterStore";
 import { advancedThemeLabel } from "../../loader/advancedThemes";
 import { applyCustomThemeFromJson, validateThemeJsonFormat } from "../../loader/themeLoader";
 import AdvancedThemes from "../components/AdvancedThemes";
+import JellyfinConnection from "./connections/JellyfinConnection";
+import SoundCloudConnection from "./connections/SoundCloudConnection";
 
 const AI_PROVIDERS: { id: AIProviderType; name: string; model: string; color: string }[] = [
   { id: "openai", name: "OpenAI", model: "GPT-4o Mini", color: "#10A37F" },
@@ -829,7 +831,7 @@ export default function Settings({
                     <span className="text-xs" style={{ color: "var(--settings-text-muted)" }}>
                       {youtubeWebSignedIn
                         ? "Search YouTube and play its audio. Also used for music videos."
-                        : "Sign in to search YouTube and play its audio next to Spotify."}
+                        : "Optional. Search and playback work as a guest; signing in gives higher request rates, Premium audio and age-restricted videos."}
                     </span>
                   </div>
                 </div>
@@ -864,6 +866,9 @@ export default function Settings({
                   </button>
                 )}
               </div>
+
+              <SoundCloudConnection />
+              <JellyfinConnection />
 
               <div className="border-t border-white/10 my-2" />
 

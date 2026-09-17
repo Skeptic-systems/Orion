@@ -1,12 +1,8 @@
 import { ArrowLeft, MusicNotes, Plus, SpinnerGap } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import useWindowLayout from "../../hooks/useWindowLayout";
-import {
-  addTrackToPlaylist,
-  fetchAllPlaylists,
-  useYouTubeTrackCounts,
-} from "../../lib/localLibrary";
-import type { UnifiedPlaylist, UnifiedTrack } from "../../providers/types";
+import { addTrackToPlaylist, fetchAllPlaylists, useLocalTrackCounts } from "../../lib/localLibrary";
+import { isSelfPlayed, type UnifiedPlaylist, type UnifiedTrack } from "../../providers/types";
 
 type AddToPlaylistViewProps = {
   track: UnifiedTrack | null;
@@ -19,20 +15,20 @@ export default function AddToPlaylistView({ track, onBack }: AddToPlaylistViewPr
   const [loading, setLoading] = useState<boolean>(true);
   const [addingTo, setAddingTo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const isYouTube = track?.provider === "youtube";
-  const youtubeCounts = useYouTubeTrackCounts();
+  const isLocal = !!track && isSelfPlayed(track.provider);
+  const localCounts = useLocalTrackCounts();
 
   useEffect(() => {
     setLayout("SearchSongs");
   }, [setLayout]);
 
-  // Spotify only takes tracks into playlists the user may edit. A YouTube
+  // Spotify only takes tracks into playlists the user may edit. A self-played
   // track is stored in Orion's local copy, so any playlist can take it.
   useEffect(() => {
     let alive = true;
     fetchAllPlaylists()
       .then((all) => {
-        if (alive) setPlaylists(all.filter((playlist) => isYouTube || playlist.writable));
+        if (alive) setPlaylists(all.filter((playlist) => isLocal || playlist.writable));
       })
       .catch((err) => {
         console.error("Failed to load playlists:", err);
@@ -44,7 +40,7 @@ export default function AddToPlaylistView({ track, onBack }: AddToPlaylistViewPr
     return () => {
       alive = false;
     };
-  }, [isYouTube]);
+  }, [isLocal]);
 
   const handleAddToPlaylist = async (playlist: UnifiedPlaylist) => {
     if (!track || addingTo) return;
@@ -71,7 +67,7 @@ export default function AddToPlaylistView({ track, onBack }: AddToPlaylistViewPr
           <h1 className="text-base font-semibold">Add to Playlist</h1>
           {track && (
             <p className="text-xs truncate mt-0.5" style={{ color: "var(--settings-text-muted)" }}>
-              {isYouTube ? `${track.name} · saved in Orion only` : track.name}
+              {isLocal ? `${track.name} · saved in Orion only` : track.name}
             </p>
           )}
         </div>
@@ -158,7 +154,7 @@ export default function AddToPlaylistView({ track, onBack }: AddToPlaylistViewPr
                           className="text-xs truncate"
                           style={{ color: "var(--settings-text-muted)" }}
                         >
-                          {playlist.trackCount + (youtubeCounts[playlist.id] ?? 0)} tracks
+                          {playlist.trackCount + (localCounts[playlist.id] ?? 0)} tracks
                         </p>
                       </div>
 

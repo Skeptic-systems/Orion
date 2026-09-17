@@ -5,6 +5,10 @@
 //! the webview profile every Orion window shares, so the embedded videos play
 //! as that account (with YouTube Premium, without ads) and the search below
 //! sends the same session. No API project, client id or quota involved.
+//!
+//! Signing in is optional. Without it search and audio still work, only
+//! anonymously: tighter request rates, no Premium and no age-restricted
+//! videos. Every path here falls back to that instead of refusing.
 
 use serde::Serialize;
 use serde_json::{json, Value};
@@ -199,14 +203,17 @@ pub async fn youtube_web_sign_out(app: AppHandle) -> Result<(), String> {
     result
 }
 
-pub(crate) async fn audio_session(app: &AppHandle) -> Result<String, String> {
+/// The signed-in session as a cookie file for the resolver, or `None` when
+/// nobody is signed in: YouTube serves audio anonymously too, only with
+/// tighter rates and without Premium or age-restricted videos.
+pub(crate) async fn audio_session(app: &AppHandle) -> Result<Option<String>, String> {
     let window = app.get_webview_window("main").ok_or("Main window unavailable")?;
     let cookies = tokio::time::timeout(COOKIE_READ_TIMEOUT, tauri::async_runtime::spawn_blocking(move || {
         window.cookies_for_url(tauri::Url::parse(ORIGIN).unwrap())
     })).await.map_err(|_| "YouTube session timed out")?
         .map_err(|_| "YouTube session unavailable")?.map_err(|_| "YouTube session unavailable")?;
     if !cookies.iter().any(|c| ["SAPISID", "__Secure-3PAPISID"].contains(&c.name())) {
-        return Err("Sign in to YouTube in Connections first".into());
+        return Ok(None);
     }
     let mut text = String::from("# Netscape HTTP Cookie File\n");
     for cookie in cookies {
@@ -217,7 +224,7 @@ pub(crate) async fn audio_session(app: &AppHandle) -> Result<String, String> {
             if cookie.secure().unwrap_or(false) { "TRUE" } else { "FALSE" },
             cookie.expires_datetime().map(|t| t.unix_timestamp()).unwrap_or(0), cookie.name(), cookie.value()));
     }
-    Ok(text)
+    Ok(Some(text))
 }
 
 #[derive(Serialize)]
@@ -317,9 +324,20 @@ async fn search_data(client: &reqwest::Client, query: &str, jar: Option<&CookieJ
 pub async fn search_youtube(app: AppHandle, query: String, continuation: Option<String>) -> Result<Value, String> {
     if query.trim().is_empty() || query.len() > 500 || continuation.as_ref().is_some_and(|s| s.len() > 20000) { return Err("Invalid search".into()); }
     let jar = session_cookies(&app).await;
-    if !is_signed_in(&jar) { return Err("Sign in to YouTube in Connections first".into()); }
     let client = reqwest::Client::builder().user_agent(USER_AGENT).timeout(SEARCH_TIMEOUT).connect_timeout(CONNECT_TIMEOUT).build().map_err(|e| e.to_string())?;
-    let data = search_data(&client, &query, Some(&jar), continuation.as_deref()).await?;
+    // The account only buys better rates and personalised ranking; youtube.com
+    // answers the same search anonymously, so a missing or rejected session is
+    // not the end of it.
+    let data = match is_signed_in(&jar) {
+        true => match search_data(&client, &query, Some(&jar), continuation.as_deref()).await {
+            Ok(data) => data,
+            Err(error) => {
+                eprintln!("signed-in YouTube search failed, retrying anonymously: {error}");
+                search_data(&client, &query, None, continuation.as_deref()).await?
+            }
+        },
+        false => search_data(&client, &query, None, continuation.as_deref()).await?,
+    };
     let mut tracks = Vec::new();
     let mut next = None;
     collect_search(&data, &mut tracks, &mut next);

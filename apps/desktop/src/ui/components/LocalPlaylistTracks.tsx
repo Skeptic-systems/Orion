@@ -12,8 +12,13 @@ import {
 import { playbackCommand } from "../../lib/playback/session";
 import { usePlaybackSession } from "../../lib/playback/sessionStore";
 import { useShuffleStore } from "../../lib/playback/shuffle";
-import { prefetchYouTubeAudio } from "../../lib/youtube";
-import type { UnifiedPlaylist, UnifiedTrack } from "../../providers/types";
+import { prefetchAudio } from "../../lib/youtube";
+import {
+  isSelfPlayed,
+  resolverRef,
+  type UnifiedPlaylist,
+  type UnifiedTrack,
+} from "../../providers/types";
 import LibraryTrackList from "./LibraryTrackList";
 
 /** The edit as Rust applies it, shown at once instead of after the round trip. */
@@ -37,7 +42,9 @@ function applyEdit(playlist: LocalPlaylist, action: PlaylistEdit): LocalPlaylist
 }
 
 /** Only YouTube entries live in Orion alone; Spotify's are removed in Spotify. */
-const removable = (track: UnifiedTrack) => track.provider === "youtube";
+// Only what Orion added itself can be taken out again: Spotify entries mirror
+// the remote playlist and are reconciled back on the next read.
+const removable = (track: UnifiedTrack) => isSelfPlayed(track.provider);
 
 /** How many of a playlist's YouTube songs start loading when it opens. */
 const PREFETCH_ON_OPEN = 3;
@@ -119,13 +126,13 @@ function LocalPlaylistTracks({ playlist }: { playlist: UnifiedPlaylist }) {
 
   useEffect(() => {
     if (!saved || prefetched.current) return;
-    const ids = saved.entries
-      .filter((entry) => entry.track.provider === "youtube")
-      .slice(0, PREFETCH_ON_OPEN)
-      .map((entry) => entry.track.id);
-    if (ids.length === 0) return;
+    const refs = saved.entries
+      .map((entry) => resolverRef(entry.track))
+      .filter((ref): ref is string => ref !== null)
+      .slice(0, PREFETCH_ON_OPEN);
+    if (refs.length === 0) return;
     prefetched.current = true;
-    prefetchYouTubeAudio(ids);
+    prefetchAudio(refs);
   }, [saved]);
 
   function edit(action: PlaylistEdit) {

@@ -11,18 +11,17 @@ import {
   Play,
   Plus,
   Queue,
-  SpotifyLogo,
   Trash,
-  YoutubeLogo,
 } from "@phosphor-icons/react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { type MouseEvent, useCallback, useEffect, useRef, useState } from "react";
 import { usePlaybackSession } from "../../lib/playback/sessionStore";
-import { prefetchYouTubeAudio } from "../../lib/youtube";
-import type { UnifiedTrack } from "../../providers/types";
+import { prefetchAudio } from "../../lib/youtube";
+import { PROVIDER_NAMES, resolverRef, type UnifiedTrack } from "../../providers/types";
 import { addToQueue, saveTrackToLibrary } from "../spotifyClient";
 import ContextMenu, { type MenuItem } from "./ContextMenu";
 import PlaylistPicker from "./PlaylistPicker";
+import ProviderBadge, { trackUrl } from "./ProviderBadge";
 import { useTrackRows } from "./useTrackRows";
 
 /** Dwell on a YouTube row before its audio starts loading in the background. */
@@ -46,12 +45,6 @@ type Props = {
 };
 
 type OpenMenu = { index: number; x: number; y: number };
-
-function trackUrl(track: UnifiedTrack): string {
-  return track.provider === "youtube"
-    ? `https://www.youtube.com/watch?v=${track.id}`
-    : `https://open.spotify.com/track/${track.id}`;
-}
 
 function formatDuration(ms: number): string {
   const seconds = Math.floor(ms / 1000);
@@ -179,18 +172,23 @@ export default function LibraryTrackList({
         onSelect: () => onSearch(artist),
       });
     }
-    elsewhere.push(
-      {
-        label: spotify ? "Open in Spotify" : "Open on YouTube",
-        icon: <ArrowSquareOut size={16} />,
-        onSelect: () => run(openUrl(trackUrl(track))),
-      },
-      {
-        label: "Copy link",
-        icon: <Copy size={16} />,
-        onSelect: () => run(navigator.clipboard.writeText(trackUrl(track)), "Link copied"),
-      }
-    );
+    // A Jellyfin track only exists on the user's own server: there is no page
+    // to open and no link worth copying.
+    const url = trackUrl(track);
+    if (url) {
+      elsewhere.push(
+        {
+          label: `Open in ${PROVIDER_NAMES[track.provider]}`,
+          icon: <ArrowSquareOut size={16} />,
+          onSelect: () => run(openUrl(url)),
+        },
+        {
+          label: "Copy link",
+          icon: <Copy size={16} />,
+          onSelect: () => run(navigator.clipboard.writeText(url), "Link copied"),
+        }
+      );
+    }
     return [playing, library, arranging, elsewhere]
       .filter((section) => section.length > 0)
       .flatMap((section, position): MenuItem[] =>
@@ -212,7 +210,8 @@ export default function LibraryTrackList({
         {indices.map((index) => {
           const track = tracks[index];
           const key = keys?.[index] ?? track.uri;
-          const youtube = track.provider === "youtube";
+          // Only the self-played providers resolve a stream ahead of a click.
+          const ref = resolverRef(track);
           const classes = [
             currentKey && key === currentKey ? "is-current" : "",
             menu?.index === index ? "has-menu" : "",
@@ -230,24 +229,22 @@ export default function LibraryTrackList({
               aria-setsize={tracks.length}
               onPointerDown={(event) => {
                 // The press starts the load; the click only follows a moment later.
-                if (youtube && event.button === 0) prefetchYouTubeAudio(track.id);
+                if (ref && event.button === 0) prefetchAudio(ref);
                 if (sortable) onPointerDown(event, index);
               }}
               onContextMenu={(event) => openMenuAtPointer(event, index)}
               onPointerEnter={
-                youtube
+                ref
                   ? () => {
                       window.clearTimeout(prefetchTimer.current);
                       prefetchTimer.current = window.setTimeout(
-                        () => prefetchYouTubeAudio(track.id),
+                        () => prefetchAudio(ref),
                         PREFETCH_DELAY_MS
                       );
                     }
                   : undefined
               }
-              onPointerLeave={
-                youtube ? () => window.clearTimeout(prefetchTimer.current) : undefined
-              }
+              onPointerLeave={ref ? () => window.clearTimeout(prefetchTimer.current) : undefined}
             >
               {sortable && (
                 <span className="library-grip" aria-hidden="true">
@@ -272,16 +269,7 @@ export default function LibraryTrackList({
                   <small>{track.artists.map((a) => a.name).join(", ")}</small>
                 </span>
               </button>
-              <span
-                className={`library-source is-${track.provider}`}
-                title={youtube ? "YouTube" : "Spotify"}
-              >
-                {youtube ? (
-                  <YoutubeLogo size={19} weight="fill" />
-                ) : (
-                  <SpotifyLogo size={19} weight="fill" />
-                )}
-              </span>
+              <ProviderBadge provider={track.provider} />
               <span className="library-duration">{formatDuration(track.durationMs)}</span>
               {showAdd && (
                 <button

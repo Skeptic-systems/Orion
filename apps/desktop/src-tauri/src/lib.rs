@@ -5,7 +5,9 @@ mod credential_store;
 pub mod custom_themes;
 pub mod debug;
 pub mod discord_rpc;
+pub mod jellyfin;
 pub mod music_video;
+pub mod soundcloud;
 mod youtube_audio;
 mod local_library;
 pub mod resize;
@@ -102,9 +104,23 @@ pub fn run() {
             music_video::youtube_web_sign_out,
             music_video::search_music_videos,
             music_video::search_youtube,
-            youtube_audio::resolve_youtube_audio,
-            youtube_audio::prefetch_youtube_audio,
-            youtube_audio::release_youtube_audio,
+            youtube_audio::resolve_audio,
+            youtube_audio::prefetch_audio,
+            youtube_audio::release_audio,
+            soundcloud::soundcloud_status,
+            soundcloud::soundcloud_sign_in,
+            soundcloud::soundcloud_sign_out,
+            soundcloud::search_soundcloud,
+            jellyfin::jellyfin_status,
+            jellyfin::jellyfin_connect,
+            jellyfin::jellyfin_connect_with_key,
+            jellyfin::jellyfin_disconnect,
+            jellyfin::jellyfin_playlists,
+            jellyfin::jellyfin_playlist_tracks,
+            jellyfin::jellyfin_albums,
+            jellyfin::jellyfin_album_tracks,
+            jellyfin::jellyfin_stream_url,
+            jellyfin::search_jellyfin,
             local_library::read_local_playlist,
             local_library::local_playlist_counts,
             local_library::reconcile_local_playlist,

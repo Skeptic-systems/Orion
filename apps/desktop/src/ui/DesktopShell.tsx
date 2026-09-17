@@ -24,7 +24,7 @@ import { listen } from "@tauri-apps/api/event";
 import { type CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useCurrentlyPlaying } from "../hooks/useCurrentlyPlaying";
 import { fetchListeningStats, type ListeningStats } from "../lib/listeningStats";
-import { useYouTubeTrackCounts } from "../lib/localLibrary";
+import { useLocalTrackCounts } from "../lib/localLibrary";
 import { playbackCommand } from "../lib/playback/session";
 import { usePlaybackSession } from "../lib/playback/sessionStore";
 import { refreshShuffle, watchShuffle } from "../lib/playback/shuffle";
@@ -1387,7 +1387,7 @@ function PlaylistGrid({
   onSelect,
   emptyLabel = "No playlists found",
 }: PlaylistCollectionProps) {
-  const youtubeCounts = useYouTubeTrackCounts();
+  const localCounts = useLocalTrackCounts();
   if (playlists.length === 0) {
     return <div className="desktop-empty">{emptyLabel}</div>;
   }
@@ -1404,7 +1404,7 @@ function PlaylistGrid({
             )}
           </div>
           <strong>{playlist.name}</strong>
-          <small>{playlist.trackCount + (youtubeCounts[playlist.id] ?? 0)} tracks</small>
+          <small>{playlist.trackCount + (localCounts[playlist.id] ?? 0)} tracks</small>
         </button>
       ))}
     </div>

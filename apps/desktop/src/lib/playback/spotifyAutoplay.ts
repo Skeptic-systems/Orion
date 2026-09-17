@@ -27,6 +27,13 @@ import { ensureActiveDevice } from "./spotifyKeepAlive";
  * to its end first. Only when it runs out does a radio built from the session
  * take over, and it keeps going: the last song of a radio starts the next one.
  *
+ * There is one rule and one radio for every source. A Spotify playlist, a
+ * YouTube playlist, a SoundCloud track, a Jellyfin album: when it runs out,
+ * `continueWithRadio` starts the same Spotify radio seeded from what just
+ * played. Sessions Orion drives itself detect their own end and call in here
+ * (see `session.ts`); Spotify-driven playback is watched by the poll below.
+ * Nothing else may decide to simply stop.
+ *
  * The radio is started as its own `uris` context, never pushed onto the user
  * queue. Spotify plays the queue *before* the context and the Web API cannot
  * remove from it, so radio tracks left there would jump ahead of the next
@@ -175,6 +182,20 @@ function ranOut(prev: Sample, next: Sample | null): boolean {
   const wrapped = next.track.id !== prev.track.id;
   const parkedAtEnd = next.positionMs >= next.durationMs - END_SLACK_MS;
   return reachedEnd || wrapped || parkedAtEnd;
+}
+
+/**
+ * Starts the radio after `seed` finished, whoever was playing it. Returns
+ * false when no radio could be built, and the caller decides what a dead end
+ * looks like.
+ *
+ * Seeding works off artist names, so a YouTube, SoundCloud or Jellyfin track
+ * continues into Spotify just as well as a Spotify one. `remember` keeps the
+ * session history that widens those seeds, so call it for foreign tracks too.
+ */
+export async function continueWithRadio(seed: UnifiedTrack): Promise<boolean> {
+  remember(seed);
+  return startRadio(seed);
 }
 
 async function startRadio(seed: UnifiedTrack): Promise<boolean> {

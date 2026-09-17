@@ -1,4 +1,26 @@
-export type MusicProviderType = "spotify" | "youtube";
+export type MusicProviderType = "spotify" | "youtube" | "soundcloud" | "jellyfin";
+
+/**
+ * Providers Orion plays itself, through its own <audio> element, rather than
+ * handing the track to Spotify. They share one code path in `session.ts`, one
+ * local-playlist store, and one rule: when their material runs out, the
+ * Spotify radio continues from there.
+ */
+export const SELF_PLAYED_PROVIDERS = ["youtube", "soundcloud", "jellyfin"] as const;
+
+export type SelfPlayedProvider = (typeof SELF_PLAYED_PROVIDERS)[number];
+
+export function isSelfPlayed(provider: MusicProviderType): provider is SelfPlayedProvider {
+  return (SELF_PLAYED_PROVIDERS as readonly string[]).includes(provider);
+}
+
+/** What each provider calls itself in the interface. */
+export const PROVIDER_NAMES: Record<MusicProviderType, string> = {
+  spotify: "Spotify",
+  youtube: "YouTube",
+  soundcloud: "SoundCloud",
+  jellyfin: "Jellyfin",
+};
 
 export interface UnifiedArtist {
   id: string;
@@ -129,15 +151,38 @@ export function createUri(provider: MusicProviderType, id: string): string {
       return `spotify:track:${id}`;
     case "youtube":
       return `youtube:video:${id}`;
+    case "soundcloud":
+      return `soundcloud:track:${id}`;
+    case "jellyfin":
+      return `jellyfin:track:${id}`;
   }
 }
 
+/**
+ * The id shapes are checked here and again in Rust: a SoundCloud id is the
+ * permalink path, a Jellyfin id the server's item id, and neither may carry a
+ * slash, a scheme or a query that could address something other than a track.
+ */
 export function parseUri(uri: string): { provider: MusicProviderType; id: string } | null {
   if (/^youtube:video:[\w-]{11}$/.test(uri)) return { provider: "youtube", id: uri.slice(14) };
+  if (/^soundcloud:track:[\w-]+\/[\w-]+$/.test(uri)) {
+    return { provider: "soundcloud", id: uri.slice(17) };
+  }
+  if (/^jellyfin:track:[\w-]+$/.test(uri)) return { provider: "jellyfin", id: uri.slice(15) };
   if (uri.startsWith("spotify:track:")) {
     return { provider: "spotify", id: uri.replace("spotify:track:", "") };
   }
   return null;
+}
+
+/**
+ * How the Rust resolver refers to a track: `"<source>:<id>"`. Jellyfin is not
+ * in there — its server hands out a stream URL directly.
+ */
+export function resolverRef(track: { provider: MusicProviderType; id: string }): string | null {
+  return track.provider === "youtube" || track.provider === "soundcloud"
+    ? `${track.provider}:${track.id}`
+    : null;
 }
 
 export function getProviderFromUri(uri: string): MusicProviderType | null {

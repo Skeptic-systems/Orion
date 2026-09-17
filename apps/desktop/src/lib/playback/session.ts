@@ -2,9 +2,10 @@ import { invoke } from "@tauri-apps/api/core";
 import { emit, emitTo, listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { convertToUnifiedTrack, createSpotifyProvider } from "../../providers/spotify";
-import type { UnifiedTrack } from "../../providers/types";
+import { isSelfPlayed, resolverRef, type UnifiedTrack } from "../../providers/types";
 import { fetchCurrentlyPlaying, transferPlayback } from "../../ui/spotifyClient";
 import { stopAIQueue } from "../aiQueueService";
+import { jellyfinStreamUrl } from "../jellyfin";
 import type { LocalPlaylist, PlaylistChange, PlaylistEntry } from "../localLibrary";
 import { toOutputVolume } from "../outputVolume";
 import { readSettings } from "../settingLib";
@@ -15,9 +16,9 @@ import {
   subscribeSpotifyLocalPlayback,
 } from "../spotifyWebPlayback";
 import { getSpotifyWebPlaybackDeviceId } from "../spotifyWebPlaybackDevice";
-import { prefetchYouTubeAudio } from "../youtube";
+import { prefetchAudio } from "../youtube";
 import { type PlaybackSession, usePlaybackSession } from "./sessionStore";
-import { skipToNext } from "./spotifyAutoplay";
+import { continueWithRadio, skipToNext } from "./spotifyAutoplay";
 
 export type PlaybackCommand =
   | { action: "track"; track: UnifiedTrack; positionMs?: number }
@@ -28,7 +29,7 @@ export type PlaybackCommand =
   | { action: "shuffle"; enabled: boolean }
   | { action: "next" | "previous" | "state" | "stop" };
 
-type AudioStream = { streamId: string; url: string };
+type AudioStream = { streamId: string | null; url: string };
 type SpotifyProgress = {
   positionMs: number;
   durationMs: number;
@@ -47,7 +48,13 @@ const SUPERSEDING = new Set<PlaybackCommand["action"]>([
 ]);
 let initialized: Promise<void> | null = null;
 let audio: HTMLAudioElement | null = null;
+/**
+ * The registered stream to hand back when the song ends. Jellyfin plays from
+ * its own server with nothing registered, so `playingLocally` — not this — is
+ * what says whether the audio element is the one making sound.
+ */
 let streamId: string | null = null;
+let playingLocally = false;
 let serial = Promise.resolve();
 let generation = 0;
 /**
@@ -64,6 +71,9 @@ let retry = false;
 /** The last reading of the Spotify song playing, to tell its end from a pause. */
 let spotifyProgress: SpotifyProgress | null = null;
 const state = () => usePlaybackSession.getState();
+/** Narrow helper: a track Orion streams through its own audio element. */
+const selfPlayed = (track: UnifiedTrack | null | undefined): track is UnifiedTrack =>
+  !!track && isSelfPlayed(track.provider);
 const spotify = createSpotifyProvider();
 
 /** How often a routine position update reaches the store and the other windows. */
@@ -108,6 +118,7 @@ function takeOver() {
 }
 
 async function releaseAudio() {
+  playingLocally = false;
   if (audio) {
     audio.pause();
     audio.removeAttribute("src");
@@ -115,7 +126,7 @@ async function releaseAudio() {
   }
   const id = streamId;
   streamId = null;
-  if (id) void invoke("release_youtube_audio", { streamId: id }).catch(() => {});
+  if (id) void invoke("release_audio", { streamId: id }).catch(() => {});
 }
 
 async function pauseSpotify() {
@@ -147,7 +158,28 @@ function upcoming(): PlaylistEntry | undefined {
 
 function prefetchUpcoming() {
   const next = upcoming();
-  if (next?.track.provider === "youtube") prefetchYouTubeAudio(next.track.id);
+  const ref = next && resolverRef(next.track);
+  if (ref) prefetchAudio(ref);
+}
+
+/**
+ * A playable URL for a track Orion streams itself.
+ *
+ * YouTube and SoundCloud go through the Rust resolver and its loopback proxy,
+ * which hands back a `streamId` to release afterwards. Jellyfin is the user's
+ * own server: it answers with a stable URL the webview fetches directly, so
+ * there is nothing to register and nothing to release.
+ */
+async function localStream(
+  track: UnifiedTrack,
+  fresh: boolean
+): Promise<{ streamId: string | null; url: string }> {
+  const ref = resolverRef(track);
+  if (ref) return invoke<AudioStream>("resolve_audio", { track: ref, fresh });
+  if (track.provider === "jellyfin") {
+    return { streamId: null, url: await jellyfinStreamUrl(track.id) };
+  }
+  throw new Error(`Orion cannot play ${track.provider} tracks`);
 }
 
 async function playEntry(track: UnifiedTrack, positionMs = 0, fresh = false) {
@@ -162,24 +194,26 @@ async function playEntry(track: UnifiedTrack, positionMs = 0, fresh = false) {
   retry = false;
   try {
     await releaseAudio();
-    if (track.provider === "youtube") {
+    if (isSelfPlayed(track.provider)) {
       const player = audio;
       if (!player) throw new Error("The player is not ready yet");
-      const resolving = invoke<AudioStream>("resolve_youtube_audio", { videoId: track.id, fresh });
       const superseded = new Promise<null>((resolve) => {
         supersede = () => resolve(null);
       });
       // Spotify is paused alongside and never waited for: its two round trips
       // used to come on top of the resolve.
       void pauseSpotify();
-      const stream = await Promise.race([resolving, superseded]);
+      const stream = await Promise.race([localStream(track, fresh), superseded]);
       if (!stream || run !== generation) {
-        void resolving
-          .then((late) => invoke("release_youtube_audio", { streamId: late.streamId }))
-          .catch(() => {});
+        // A resolve that lands after a newer command took over still holds a
+        // registered stream; it is handed back rather than left to age out.
+        if (stream?.streamId) {
+          void invoke("release_audio", { streamId: stream.streamId }).catch(() => {});
+        }
         return;
       }
       streamId = stream.streamId;
+      playingLocally = true;
       player.src = stream.url;
       player.currentTime = positionMs / 1000;
       await player.play();
@@ -244,6 +278,46 @@ async function pollRemoteSpotify() {
   );
 }
 
+/**
+ * The end of a session Orion drives itself: a playlist played through, or the
+ * single track from search that was all there was. Spotify does not stop there
+ * and neither does Orion — the radio continues from what just played, whatever
+ * provider it came from.
+ *
+ * Handing over means giving up local playback: the radio runs on Spotify, and
+ * `spotifyAutoplay` only watches playback that Orion does not own. Keeping
+ * `local` true here is what used to make the radio stop after one round.
+ */
+async function runOut(seed: UnifiedTrack | null) {
+  const run = generation;
+  // The track is over either way, so the stream goes first: building the radio
+  // takes a moment, and holding a finished stream open only risks overlap.
+  await releaseAudio();
+  if (seed && (await continueWithRadio(seed).catch(() => false))) {
+    if (run !== generation) return;
+    publish({
+      local: false,
+      playlist: null,
+      playlistId: null,
+      entryId: null,
+      playback: null,
+      loading: false,
+      error: null,
+    });
+    return;
+  }
+  if (run !== generation) return;
+  // No radio to be had — Spotify disconnected, or nothing related found.
+  // Park on the last track rather than pretending something is playing.
+  const current = state();
+  if (current.playback?.track?.provider === "spotify") await spotify.pause().catch(() => {});
+  else audio?.pause();
+  publish({
+    loading: false,
+    playback: current.playback ? { ...current.playback, isPlaying: false } : null,
+  });
+}
+
 async function advance(previous: boolean) {
   const current = state();
   if (!current.local) {
@@ -252,7 +326,7 @@ async function advance(previous: boolean) {
     return;
   }
   if (previous && (current.playback?.progressMs ?? 0) > 3000) {
-    if (current.playback?.track?.provider === "youtube" && audio) audio.currentTime = 0;
+    if (selfPlayed(current.playback?.track) && audio) audio.currentTime = 0;
     else await spotify.seek(0);
     return;
   }
@@ -271,9 +345,14 @@ async function advance(previous: boolean) {
     planned = null;
   }
   if (!entry) {
-    if (current.playback?.track?.provider === "youtube") audio?.pause();
-    else await spotify.pause();
-    publish({ playback: current.playback ? { ...current.playback, isPlaying: false } : null });
+    // Running out backwards is not running out: "previous" on the first song
+    // restarts it, the way Spotify does. Only the forward end starts a radio.
+    if (previous) {
+      if (selfPlayed(current.playback?.track) && audio) audio.currentTime = 0;
+      else await spotify.seek(0);
+      return;
+    }
+    await runOut(current.playback?.track ?? null);
     return;
   }
   if (!previous && current.entryId) history.push(current.entryId);
@@ -296,7 +375,14 @@ async function execute(command: PlaybackCommand) {
     case "playlist": {
       const entry = command.playlist.entries.find((e) => e.entryId === command.entryId);
       if (!entry) throw new Error("Playlist entry no longer exists");
-      if (command.playlist.entries.some((e) => e.track.provider === "youtube")) {
+      // Only a *mixed* playlist needs Spotify playing inside Orion: the two
+      // halves have to hand over to each other on the same device. A playlist
+      // of only self-played tracks needs no Spotify at all.
+      const entries = command.playlist.entries;
+      const mixed =
+        entries.some((e) => selfPlayed(e.track)) &&
+        entries.some((e) => e.track.provider === "spotify");
+      if (mixed) {
         const id = getSpotifyWebPlaybackDeviceId();
         if (!id || !isSpotifyWebPlaybackReady())
           throw new Error(
@@ -339,7 +425,7 @@ async function execute(command: PlaybackCommand) {
       return;
     case "volume":
       if (audio) audio.volume = Math.max(0, Math.min(1, toOutputVolume(command.volume) / 100));
-      if (state().playback?.track?.provider !== "youtube") await spotify.setVolume(command.volume);
+      if (!selfPlayed(state().playback?.track)) await spotify.setVolume(command.volume);
       return;
     case "shuffle":
       publish({ shuffle: command.enabled });
@@ -348,16 +434,16 @@ async function execute(command: PlaybackCommand) {
       prefetchUpcoming();
       return;
     case "seek":
-      if (state().local && state().playback?.track?.provider === "youtube" && audio)
+      if (state().local && selfPlayed(state().playback?.track) && audio)
         audio.currentTime = Math.max(0, command.positionMs) / 1000;
       else await spotify.seek(command.positionMs);
       return;
     case "playing": {
       const current = state();
       const track = current.playback?.track;
-      if (current.local && track?.provider === "youtube") {
+      if (current.local && selfPlayed(track)) {
         if (!command.playing) audio?.pause();
-        else if (!streamId || current.error) {
+        else if (!playingLocally || current.error) {
           await playEntry(track, current.playback?.progressMs ?? 0);
           return;
         } else await audio?.play();
@@ -399,13 +485,14 @@ export function initializePlaybackSession(): Promise<void> {
     let reportedAt = 0;
     const syncAudio = (event: Event) => {
       const current = state();
-      if (!streamId || current.playback?.track?.provider !== "youtube") return;
+      const playback = current.playback;
+      if (!playingLocally || !playback || !selfPlayed(playback.track)) return;
       const isPlaying = !player.paused && !player.ended;
-      const routine = event.type === "timeupdate" && isPlaying === current.playback.isPlaying;
+      const routine = event.type === "timeupdate" && isPlaying === playback.isPlaying;
       if (routine && performance.now() - reportedAt < PROGRESS_EVERY_MS) return;
       reportedAt = performance.now();
       publish(
-        { playback: { ...current.playback, progressMs: player.currentTime * 1000, isPlaying } },
+        { playback: { ...playback, progressMs: player.currentTime * 1000, isPlaying } },
         routine
       );
     };
@@ -418,7 +505,7 @@ export function initializePlaybackSession(): Promise<void> {
       }
     });
     player.addEventListener("error", () => {
-      if (!streamId || state().loading) return;
+      if (!playingLocally || state().loading) return;
       const current = state().playback;
       if (!current?.track || retry) {
         publish({
@@ -471,18 +558,6 @@ export function initializePlaybackSession(): Promise<void> {
           if (state().playlist?.playlistId === playlist.playlistId) publish({ playlist });
         })
         .catch(() => {});
-    });
-    await listen<{ signedIn: boolean }>("youtube-web-sign-in", ({ payload }) => {
-      const playback = state().playback;
-      if (!payload.signedIn && playback?.track?.provider === "youtube") {
-        takeOver();
-        void releaseAudio();
-        publish({
-          loading: false,
-          error: "Sign in to YouTube in Connections to resume.",
-          playback: { ...playback, isPlaying: false },
-        });
-      }
     });
     subscribeSpotifyLocalPlayback((sample) => {
       const current = state();

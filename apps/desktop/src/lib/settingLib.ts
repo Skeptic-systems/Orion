@@ -2,7 +2,11 @@ import { invoke } from "@tauri-apps/api/core";
 import { emit } from "@tauri-apps/api/event";
 
 export type AIProviderType = "openai" | "anthropic" | "google" | "groq";
-export type MusicProviderType = "spotify" | "youtube";
+// One definition for the whole app; this module used to carry a second, older
+// copy that silently excluded any provider added since.
+export type { MusicProviderType } from "../providers/types";
+
+import type { MusicProviderType } from "../providers/types";
 
 export type AIProviderConfig = {
   provider: AIProviderType;
@@ -76,10 +80,10 @@ export type LastPlayedTrack = {
   cached_at: number;
 };
 
+/** The last track played on each provider, so a switch restores where it was. */
 export type ProviderPlaybackCache = {
   spotify: LastPlayedTrack | null;
-  youtube?: LastPlayedTrack | null;
-};
+} & Partial<Record<Exclude<MusicProviderType, "spotify">, LastPlayedTrack | null>>;
 
 /** `local` means Orion's own player, whose device id changes every session. */
 export type SavedSpotifyDevice = {

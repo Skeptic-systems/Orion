@@ -519,12 +519,10 @@ html[data-skin="editorial"] .desktop-brand > div::after {
 /* A table of contents rather than a menu. */
 html[data-skin="editorial"] .desktop-nav {
   gap: 0;
-  counter-reset: skin-nav;
   border-top: 2px solid var(--skin-ink);
 }
 
 html[data-skin="editorial"] .desktop-nav-item {
-  counter-increment: skin-nav;
   min-height: 48px;
   border-bottom: 1px solid rgba(28, 25, 21, 0.18);
   border-radius: 0;
@@ -535,13 +533,14 @@ html[data-skin="editorial"] .desktop-nav-item {
 }
 
 html[data-skin="editorial"] .desktop-nav-item::before {
-  content: counter(skin-nav, decimal-leading-zero);
-  min-width: 18px;
+  content: none;
+}
+
+html[data-skin="editorial"] .desktop-nav-item svg {
+  width: 18px;
+  height: 18px;
   color: var(--desktop-dim);
-  font-family: var(--skin-mono);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  stroke-width: 1.5;
 }
 
 html[data-skin="editorial"] .desktop-nav-item:hover {
@@ -555,16 +554,8 @@ html[data-skin="editorial"] .desktop-nav-item.is-active {
   box-shadow: inset 4px 0 0 var(--desktop-accent);
 }
 
-html[data-skin="editorial"] .desktop-nav-item.is-active::before {
+html[data-skin="editorial"] .desktop-nav-item.is-active svg {
   color: var(--desktop-accent);
-}
-
-/* Icons read as app chrome; the numbers stand in for them. The narrow window
-   keeps them, since there the labels are hidden. */
-@media (min-width: 981px) {
-  html[data-skin="editorial"] .desktop-nav-item svg {
-    display: none;
-  }
 }
 
 html[data-skin="editorial"] .desktop-update-button {
@@ -579,7 +570,7 @@ html[data-skin="editorial"] .desktop-account {
 
 html[data-skin="editorial"] .desktop-account-avatar {
   border-radius: 0;
-  filter: grayscale(1);
+  filter: none;
 }
 
 html[data-skin="editorial"] .desktop-main {

@@ -1,6 +1,9 @@
-//! Audio-only YouTube playback. The bundled yt-dlp resolves a video's audio
-//! stream with the YouTube session from Connections, and a loopback proxy
-//! hands it to the webview's <audio> element.
+//! Audio-only playback for the services Orion streams itself: YouTube and
+//! SoundCloud. The bundled yt-dlp resolves a track's audio stream — with the
+//! service's session from Connections when there is one — and a loopback
+//! proxy hands it to the webview's <audio> element.
+//!
+//! Jellyfin does not come through here: its server hands out a direct URL.
 //!
 //! Resolving takes seconds, so songs the user is likely to play are resolved
 //! ahead of time, and the first half megabyte of their audio is fetched too:
@@ -86,7 +89,10 @@ static RESOLVED: LazyLock<Mutex<HashMap<String, (u64, Slot)>>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));
 static HEADS: LazyLock<std::sync::Mutex<HashMap<String, (Instant, Arc<Head>)>>> =
     LazyLock::new(|| std::sync::Mutex::new(HashMap::new()));
-static SESSION: std::sync::Mutex<Option<(Instant, String)>> = std::sync::Mutex::new(None);
+/// One cached session per service. The inner `Option` is the session itself:
+/// `None` there means nobody is signed in and yt-dlp runs anonymously.
+type CachedSession = Option<(Instant, Option<String>)>;
+static SESSIONS: std::sync::Mutex<[CachedSession; 2]> = std::sync::Mutex::new([None, None]);
 static QUEUE: std::sync::Mutex<VecDeque<String>> = std::sync::Mutex::new(VecDeque::new());
 static WORKERS: AtomicUsize = AtomicUsize::new(0);
 static PROXY: OnceLock<reqwest::Client> = OnceLock::new();
@@ -98,12 +104,88 @@ pub struct AudioStream {
     url: String,
 }
 
-fn allowed_url(url: &reqwest::Url) -> bool {
-    url.scheme() == "https" && url.host_str().is_some_and(|h| h.ends_with(".googlevideo.com"))
+/// A service Orion resolves audio from. Everything below is keyed by
+/// `"<source>:<id>"` so one cache, one queue and one proxy serve both.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Source {
+    YouTube,
+    SoundCloud,
 }
 
-fn valid_video_id(id: &str) -> bool {
-    id.len() == 11 && id.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_' || b == b'-')
+struct TrackRef {
+    source: Source,
+    id: String,
+}
+
+impl TrackRef {
+    /// `youtube:<11-char id>` or `soundcloud:<user>/<slug>`. Anything else is
+    /// refused here rather than reaching yt-dlp's argument list.
+    fn parse(reference: &str) -> Option<Self> {
+        let (source, id) = reference.split_once(':')?;
+        let source = match source {
+            "youtube" => Source::YouTube,
+            "soundcloud" => Source::SoundCloud,
+            _ => return None,
+        };
+        valid_id(source, id).then(|| Self { source, id: id.to_owned() })
+    }
+
+    fn page_url(&self) -> String {
+        match self.source {
+            Source::YouTube => format!("https://www.youtube.com/watch?v={}", self.id),
+            Source::SoundCloud => format!("https://soundcloud.com/{}", self.id),
+        }
+    }
+
+    /// SoundCloud also serves HLS, which the webview's <audio> cannot play, so
+    /// a progressive stream is asked for first and HLS only as a last resort.
+    fn format(&self) -> &'static str {
+        match self.source {
+            Source::YouTube => "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio",
+            Source::SoundCloud => "http_mp3_128/bestaudio[protocol^=http]/bestaudio",
+        }
+    }
+}
+
+fn valid_id(source: Source, id: &str) -> bool {
+    match source {
+        Source::YouTube => {
+            id.len() == 11 && id.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_' || b == b'-')
+        }
+        // "user/track-slug", the permalink path and nothing more: no scheme,
+        // no query, no traversal, so it cannot address anything but a track.
+        Source::SoundCloud => {
+            let mut parts = id.split('/');
+            let (Some(user), Some(slug), None) = (parts.next(), parts.next(), parts.next()) else {
+                return false;
+            };
+            [user, slug].iter().all(|part| {
+                !part.is_empty()
+                    && part.len() <= 120
+                    && part.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_')
+            })
+        }
+    }
+}
+
+/// Where a resolved stream may point, per service. Checked once, on the URL
+/// yt-dlp returned, before it is ever registered with the proxy.
+fn allowed_for(source: Source, url: &reqwest::Url) -> bool {
+    let Some(host) = url.host_str() else { return false };
+    match source {
+        Source::YouTube => url.scheme() == "https" && host.ends_with(".googlevideo.com"),
+        // SoundCloud's media CDN. Plain http appears on some progressive URLs.
+        Source::SoundCloud => {
+            matches!(url.scheme(), "https" | "http") && host.ends_with(".sndcdn.com")
+        }
+    }
+}
+
+/// The union of the above, for the proxy's redirect policy: a stream is tied
+/// to its service at resolve time, so following a redirect only has to stay
+/// inside the set of CDNs this app talks to at all.
+fn allowed_url(url: &reqwest::Url) -> bool {
+    allowed_for(Source::YouTube, url) || allowed_for(Source::SoundCloud, url)
 }
 
 /// How long a resolved URL may be handed out again.
@@ -272,6 +354,11 @@ async fn server() -> Result<&'static Server, String> {
         .await
 }
 
+/// A bundled helper's path, for the other modules that drive yt-dlp.
+pub(crate) fn helper(app: &AppHandle, name: &str) -> Result<PathBuf, String> {
+    binary(app, name)
+}
+
 fn binary(app: &AppHandle, name: &str) -> Result<PathBuf, String> {
     let extension = if cfg!(windows) { ".exe" } else { "" };
     let platform = if cfg!(windows) {
@@ -319,14 +406,22 @@ pub(crate) async fn invalidate_session() {
 
 /// Drops the cached cookies, so the next resolve reads the current session.
 pub(crate) fn forget_session() {
-    if let Ok(mut session) = SESSION.lock() {
-        *session = None;
+    if let Ok(mut sessions) = SESSIONS.lock() {
+        *sessions = [None, None];
     }
 }
 
-async fn session(app: &AppHandle) -> Result<String, String> {
-    let cached = SESSION.lock().ok().and_then(|session| {
-        session
+fn session_slot(source: Source) -> usize {
+    match source {
+        Source::YouTube => 0,
+        Source::SoundCloud => 1,
+    }
+}
+
+async fn session(app: &AppHandle, source: Source) -> Result<Option<String>, String> {
+    let slot = session_slot(source);
+    let cached = SESSIONS.lock().ok().and_then(|sessions| {
+        sessions[slot]
             .as_ref()
             .filter(|(at, _)| at.elapsed() < SESSION_TTL)
             .map(|(_, text)| text.clone())
@@ -334,23 +429,33 @@ async fn session(app: &AppHandle) -> Result<String, String> {
     if let Some(text) = cached {
         return Ok(text);
     }
-    let text = crate::music_video::audio_session(app).await?;
-    if let Ok(mut session) = SESSION.lock() {
-        *session = Some((Instant::now(), text.clone()));
+    let text = match source {
+        Source::YouTube => crate::music_video::audio_session(app).await?,
+        Source::SoundCloud => crate::soundcloud::audio_session(app).await?,
+    };
+    if let Ok(mut sessions) = SESSIONS.lock() {
+        sessions[slot] = Some((Instant::now(), text.clone()));
     }
     Ok(text)
 }
 
-async fn resolve(app: AppHandle, video_id: String) -> Result<Resolved, String> {
-    let session = session(&app).await?;
+async fn resolve(app: AppHandle, reference: String) -> Result<Resolved, String> {
+    let track = TrackRef::parse(&reference).ok_or("Unknown track")?;
+    let session = session(&app, track.source).await?;
     let cache = app.path().app_cache_dir().map_err(|e| e.to_string())?;
-    let directory = cache.join("audio-session");
-    std::fs::create_dir_all(&directory).map_err(|e| e.to_string())?;
-    let mut cookies =
-        tempfile::NamedTempFile::new_in(&directory).map_err(|_| "Cannot create audio session")?;
-    cookies
-        .write_all(session.as_bytes())
-        .map_err(|_| "Cannot prepare audio session")?;
+    // Without a sign-in there is no cookie file and yt-dlp resolves anonymously.
+    let cookies = match session {
+        Some(text) => {
+            let directory = cache.join("audio-session");
+            std::fs::create_dir_all(&directory).map_err(|e| e.to_string())?;
+            let mut file = tempfile::NamedTempFile::new_in(&directory)
+                .map_err(|_| "Cannot create audio session")?;
+            file.write_all(text.as_bytes())
+                .map_err(|_| "Cannot prepare audio session")?;
+            Some(file)
+        }
+        None => None,
+    };
     let mut command = tokio::process::Command::new(binary(&app, "yt-dlp")?);
     command
         .args([
@@ -364,37 +469,43 @@ async fn resolve(app: AppHandle, video_id: String) -> Result<Resolved, String> {
             "15",
             "--retries",
             "1",
-            "--format",
-            "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio",
-            // Manifests and translated subtitles are never used here.
-            "--extractor-args",
-            "youtube:skip=dash,hls,translated_subs",
         ])
+        .arg("--format")
+        .arg(track.format())
+        // Manifests and translated subtitles are never used here.
+        .arg("--extractor-args")
+        .arg("youtube:skip=dash,hls,translated_subs")
         // Keeps YouTube's player script and solved challenges between songs.
         .arg("--cache-dir")
         .arg(cache.join("yt-dlp"))
         .arg("--js-runtimes")
-        .arg(format!("deno:{}", binary(&app, "deno")?.display()))
-        .arg("--cookies")
-        .arg(cookies.path())
+        .arg(format!("deno:{}", binary(&app, "deno")?.display()));
+    if let Some(file) = &cookies {
+        command.arg("--cookies").arg(file.path());
+    }
+    command
         .arg("--")
-        .arg(format!("https://www.youtube.com/watch?v={video_id}"))
+        .arg(track.page_url())
         .kill_on_drop(true);
     #[cfg(windows)]
     command.creation_flags(0x08000000);
     let output = tokio::time::timeout(RESOLVE_TIMEOUT, command.output())
         .await
-        .map_err(|_| "YouTube audio timed out. Try again.")?
+        .map_err(|_| "Audio resolving timed out. Try again.")?
         .map_err(|_| "Audio helper could not start")?;
     // Resolver stderr can contain account or signed URL details; never forward it.
     if !output.status.success() {
-        return Err("YouTube could not provide this audio. The video may be unavailable or your session may need a new sign-in.".into());
+        return Err(match track.source {
+            Source::YouTube => "YouTube could not provide this audio. The video may be unavailable, or it needs a YouTube sign-in under Connections.",
+            Source::SoundCloud => "SoundCloud could not provide this audio. The track may be private or unavailable for streaming.",
+        }
+        .into());
     }
     let data: Value = serde_json::from_slice(&output.stdout).map_err(|_| "Invalid audio response")?;
     let url = data["url"]
         .as_str()
         .ok_or("No playable audio format available")?;
-    if !reqwest::Url::parse(url).is_ok_and(|url| allowed_url(&url)) {
+    if !reqwest::Url::parse(url).is_ok_and(|url| allowed_for(track.source, &url)) {
         return Err("Unsupported audio stream".into());
     }
     let headers = ["User-Agent", "Referer", "Origin"]
@@ -419,9 +530,9 @@ async fn resolve(app: AppHandle, video_id: String) -> Result<Resolved, String> {
     })
 }
 
-/// The video's stream: cached while its URL is fresh, otherwise resolved once
+/// The track's stream: cached while its URL is fresh, otherwise resolved once
 /// no matter how many callers wait for it.
-async fn resolved(app: &AppHandle, video_id: &str, fresh: bool) -> Result<Stream, String> {
+async fn resolved(app: &AppHandle, reference: &str, fresh: bool) -> Result<Stream, String> {
     let generation = GENERATION.load(Ordering::SeqCst);
     let slot = {
         let mut cache = RESOLVED.lock().await;
@@ -435,20 +546,20 @@ async fn resolved(app: &AppHandle, video_id: &str, fresh: bool) -> Result<Stream
                 }
         });
         if fresh {
-            cache.remove(video_id);
+            cache.remove(reference);
         }
         cache
-            .entry(video_id.to_owned())
+            .entry(reference.to_owned())
             .or_insert_with(|| (generation, Arc::new(OnceCell::new())))
             .1
             .clone()
     };
     let result = slot
-        .get_or_init(|| resolve(app.clone(), video_id.to_owned()))
+        .get_or_init(|| resolve(app.clone(), reference.to_owned()))
         .await
         .clone();
     if generation != GENERATION.load(Ordering::SeqCst) {
-        return Err("YouTube session changed".into());
+        return Err("The signed-in session changed".into());
     }
     result.map(|resolved| resolved.stream)
 }
@@ -526,8 +637,8 @@ fn ensure_workers(app: &AppHandle) {
 async fn prefetch_worker(app: AppHandle) {
     loop {
         let next = QUEUE.lock().ok().and_then(|mut queue| queue.pop_front());
-        let Some(video_id) = next else { break };
-        if let Ok(stream) = resolved(&app, &video_id, false).await {
+        let Some(reference) = next else { break };
+        if let Ok(stream) = resolved(&app, &reference, false).await {
             if cached_head(&stream.url).is_none() {
                 if let Some(head) = fetch_head(&stream).await {
                     remember_head(&stream.url, head);
@@ -559,7 +670,7 @@ async fn register(mut stream: Stream) -> Result<AudioStream, String> {
 }
 
 #[tauri::command]
-pub async fn release_youtube_audio(stream_id: String) {
+pub async fn release_audio(stream_id: String) {
     if let Some(server) = SERVER.get() {
         let mut registry = server.registry.lock().await;
         registry.streams.remove(&stream_id);
@@ -567,31 +678,32 @@ pub async fn release_youtube_audio(stream_id: String) {
     }
 }
 
-/// `fresh` skips the cache, for a stream whose URL stopped working.
+/// `track` is `"<source>:<id>"`; `fresh` skips the cache, for a stream whose
+/// URL stopped working.
 #[tauri::command]
-pub async fn resolve_youtube_audio(
+pub async fn resolve_audio(
     app: AppHandle,
-    video_id: String,
+    track: String,
     fresh: Option<bool>,
 ) -> Result<AudioStream, String> {
-    if !valid_video_id(&video_id) {
-        return Err("Invalid YouTube video".into());
+    if TrackRef::parse(&track).is_none() {
+        return Err("Invalid track".into());
     }
-    let stream = resolved(&app, &video_id, fresh.unwrap_or(false)).await?;
+    let stream = resolved(&app, &track, fresh.unwrap_or(false)).await?;
     register(stream).await
 }
 
-/// Queues videos to resolve ahead of time, the first one most urgently.
+/// Queues tracks to resolve ahead of time, the first one most urgently.
 #[tauri::command]
-pub async fn prefetch_youtube_audio(app: AppHandle, video_ids: Vec<String>) {
+pub async fn prefetch_audio(app: AppHandle, tracks: Vec<String>) {
     {
         let Ok(mut queue) = QUEUE.lock() else { return };
-        for id in video_ids.into_iter().take(MAX_QUEUED).rev() {
-            if !valid_video_id(&id) {
+        for reference in tracks.into_iter().take(MAX_QUEUED).rev() {
+            if TrackRef::parse(&reference).is_none() {
                 continue;
             }
-            queue.retain(|queued| queued != &id);
-            queue.push_front(id);
+            queue.retain(|queued| queued != &reference);
+            queue.push_front(reference);
         }
         queue.truncate(MAX_QUEUED);
     }
@@ -629,9 +741,49 @@ mod tests {
 
     #[test]
     fn video_ids_are_checked() {
-        assert!(valid_video_id("dQw4w9WgXcQ"));
-        assert!(!valid_video_id("dQw4w9WgXc"));
-        assert!(!valid_video_id("dQw4w9WgX/Q"));
+        assert!(valid_id(Source::YouTube, "dQw4w9WgXcQ"));
+        assert!(!valid_id(Source::YouTube, "dQw4w9WgXc"));
+        assert!(!valid_id(Source::YouTube, "dQw4w9WgX/Q"));
+    }
+
+    #[test]
+    fn soundcloud_ids_are_permalink_paths() {
+        assert!(valid_id(Source::SoundCloud, "some-user/some-track"));
+        assert!(valid_id(Source::SoundCloud, "user_1/track_2"));
+        // A bare profile, a set, a traversal or a full URL are all refused.
+        for id in [
+            "some-user",
+            "some-user/sets/a-playlist",
+            "../../etc",
+            "https://soundcloud.com/u/t",
+            "u/t?x=1",
+            "",
+        ] {
+            assert!(!valid_id(Source::SoundCloud, id), "{id:?} should be refused");
+        }
+    }
+
+    #[test]
+    fn track_refs_carry_their_source() {
+        let youtube = TrackRef::parse("youtube:dQw4w9WgXcQ").expect("youtube ref");
+        assert_eq!(youtube.page_url(), "https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+        let soundcloud = TrackRef::parse("soundcloud:u/t").expect("soundcloud ref");
+        assert_eq!(soundcloud.page_url(), "https://soundcloud.com/u/t");
+        assert!(TrackRef::parse("jellyfin:abc").is_none());
+        assert!(TrackRef::parse("dQw4w9WgXcQ").is_none());
+    }
+
+    #[test]
+    fn a_stream_may_only_point_at_its_own_service() {
+        let googlevideo = reqwest::Url::parse("https://rr1.googlevideo.com/x").unwrap();
+        let sndcdn = reqwest::Url::parse("https://cf-media.sndcdn.com/x.mp3").unwrap();
+        assert!(allowed_for(Source::YouTube, &googlevideo));
+        assert!(!allowed_for(Source::YouTube, &sndcdn));
+        assert!(allowed_for(Source::SoundCloud, &sndcdn));
+        assert!(!allowed_for(Source::SoundCloud, &googlevideo));
+        // The proxy's redirect policy accepts either, but nothing else.
+        assert!(allowed_url(&googlevideo) && allowed_url(&sndcdn));
+        assert!(!allowed_url(&reqwest::Url::parse("https://evil.example.com/x").unwrap()));
     }
 
     #[test]

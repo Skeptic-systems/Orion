@@ -55,6 +55,12 @@
 .library-source-tabs button.is-youtube[aria-pressed="true"] svg {
   color: #ff0033;
 }
+.library-source-tabs button.is-soundcloud[aria-pressed="true"] svg {
+  color: #ff5500;
+}
+.library-source-tabs button.is-jellyfin[aria-pressed="true"] svg {
+  color: #aa5cc3;
+}
 .library-source-tabs button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
@@ -187,7 +193,7 @@
   font-size: 12px;
   color: var(--desktop-muted, var(--settings-text-muted));
 }
-/* Brand colours, so a YouTube song stands out in a Spotify playlist at a glance. */
+/* Brand colours, so a song from another source stands out in a playlist. */
 .library-source {
   display: grid;
   place-items: center;
@@ -200,6 +206,12 @@
 }
 .library-source.is-youtube {
   color: #ff0033;
+}
+.library-source.is-soundcloud {
+  color: #ff5500;
+}
+.library-source.is-jellyfin {
+  color: #aa5cc3;
 }
 .library-duration {
   font-size: 12px;
@@ -566,4 +578,46 @@ body.is-sorting-rows * {
 .library-dialog button:focus-visible {
   outline: 2px solid var(--desktop-text, var(--settings-text));
   outline-offset: 2px;
+}
+
+/* Jellyfin browsing: the cover grid reuses .desktop-playlist-grid, so only the
+   header of an opened album or playlist needs its own rules. */
+.jellyfin-browse {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.jellyfin-browse-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.jellyfin-browse-header img {
+  width: 64px;
+  height: 64px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.jellyfin-browse-header > div {
+  flex: 1;
+  min-width: 0;
+}
+.jellyfin-browse-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.jellyfin-browse-header p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--desktop-muted, var(--settings-text-muted));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

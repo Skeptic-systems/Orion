@@ -1,7 +1,8 @@
-import { Plus, SpinnerGap, X, YoutubeLogo } from "@phosphor-icons/react";
+import { Plus, SpinnerGap, X } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
 import { addTrackToPlaylist, fetchAllPlaylists } from "../../lib/localLibrary";
-import type { UnifiedPlaylist, UnifiedTrack } from "../../providers/types";
+import { isSelfPlayed, type UnifiedPlaylist, type UnifiedTrack } from "../../providers/types";
+import ProviderBadge from "./ProviderBadge";
 
 export default function PlaylistPicker({
   track,
@@ -10,6 +11,7 @@ export default function PlaylistPicker({
   track: UnifiedTrack;
   onClose: () => void;
 }) {
+  const local = isSelfPlayed(track.provider);
   const dialog = useRef<HTMLDialogElement>(null);
   const [playlists, setPlaylists] = useState<UnifiedPlaylist[]>([]);
   const [loading, setLoading] = useState(true);
@@ -18,10 +20,11 @@ export default function PlaylistPicker({
   useEffect(() => {
     dialog.current?.showModal();
     let alive = true;
-    // A YouTube track only lands in Orion's local copy, so any playlist can take it.
+    // A self-played track only lands in Orion's local copy of the playlist, so
+    // any playlist can take it — writability only matters to Spotify.
     fetchAllPlaylists()
       .then((all) => {
-        if (alive) setPlaylists(all.filter((p) => track.provider === "youtube" || p.writable));
+        if (alive) setPlaylists(all.filter((p) => local || p.writable));
       })
       .catch((e) => {
         if (alive) setError(String(e));
@@ -32,7 +35,7 @@ export default function PlaylistPicker({
     return () => {
       alive = false;
     };
-  }, [track.provider]);
+  }, [local]);
   async function add(playlist: UnifiedPlaylist) {
     if (busy) return;
     setBusy(playlist.id);
@@ -59,7 +62,7 @@ export default function PlaylistPicker({
         <div>
           <h2>Add to playlist</h2>
           <p>{track.name}</p>
-          {track.provider === "youtube" && <p>Saved in Orion only, not synced to Spotify</p>}
+          {local && <p>Saved in Orion only, not synced to Spotify</p>}
         </div>
         <button type="button" onClick={onClose} aria-label="Close" title="Close">
           <X size={20} />
@@ -82,8 +85,8 @@ export default function PlaylistPicker({
               <span>{p.name}</span>
               {busy === p.id ? (
                 <SpinnerGap className="animate-spin" size={18} />
-              ) : track.provider === "youtube" ? (
-                <YoutubeLogo size={18} />
+              ) : local ? (
+                <ProviderBadge provider={track.provider} size={18} />
               ) : (
                 <Plus size={18} />
               )}

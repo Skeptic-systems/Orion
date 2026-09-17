@@ -11,13 +11,14 @@ export function searchYouTube(
   return invoke("search_youtube", { query, continuation });
 }
 /**
- * Queues videos to load in the background, the first most urgently, so playing
- * one later starts at once.
+ * Queues tracks to load in the background, the first most urgently, so playing
+ * one later starts at once. Takes resolver refs (`"<source>:<id>"`), so
+ * YouTube and SoundCloud share the one queue.
  */
-export function prefetchYouTubeAudio(videoIds: string | string[]): void {
-  const ids = typeof videoIds === "string" ? [videoIds] : videoIds;
-  if (ids.length === 0) return;
-  void invoke("prefetch_youtube_audio", { videoIds: ids }).catch(() => {});
+export function prefetchAudio(refs: string | string[]): void {
+  const list = typeof refs === "string" ? [refs] : refs;
+  if (list.length === 0) return;
+  void invoke("prefetch_audio", { tracks: list }).catch(() => {});
 }
 export function useYouTubeConnection() {
   const [connected, setConnected] = useState(false);

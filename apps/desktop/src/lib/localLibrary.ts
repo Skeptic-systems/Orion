@@ -121,7 +121,11 @@ export function editLocalPlaylist(
  * YouTube songs per playlist, which Spotify's own track counts leave out. Kept
  * current as playlists change in any window.
  */
-export function useYouTubeTrackCounts(): Record<string, number> {
+/**
+ * How many tracks each playlist holds that live only in Orion — the YouTube,
+ * SoundCloud and Jellyfin ones Spotify knows nothing about.
+ */
+export function useLocalTrackCounts(): Record<string, number> {
   const [counts, setCounts] = useState<Record<string, number>>({});
   useEffect(() => {
     let alive = true;
