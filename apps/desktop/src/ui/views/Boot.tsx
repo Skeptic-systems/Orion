@@ -33,7 +33,7 @@ export default function Boot({
   const [copied, setCopied] = useState(false);
 
   // Fetch the exact redirect URIs from the backend so the setup instructions
-  // always match what MiniFy actually sends to Spotify.
+  // always match what Orion actually sends to Spotify.
   useEffect(() => {
     invoke<string[]>("get_spotify_redirect_uris")
       .then((uris) => {
@@ -165,7 +165,7 @@ export default function Boot({
           <div className="text-center">
             <h1 className="font-circular text-2xl font-bold mb-2">Connect Spotify</h1>
             <p className="text-sm text-white/60">
-              MiniFy is a Spotify client. Sign in to control playback.
+              Orion is a Spotify client. Sign in to control playback.
             </p>
           </div>
 
@@ -253,7 +253,7 @@ export default function Boot({
                     </button>
                   </div>
                   <p className="mt-1 text-xs text-white/40">
-                    Add all of them. MiniFy uses the first free port, so old login attempts cannot
+                    Add all of them. Orion uses the first free port, so old login attempts cannot
                     block Spotify auth.
                   </p>
                 </div>
@@ -356,7 +356,7 @@ export default function Boot({
           </div>
           <div className="text-center">
             <h1 className="font-circular text-xl font-bold mb-1">Connected!</h1>
-            <p className="text-sm text-white/60">Starting MiniFy...</p>
+            <p className="text-sm text-white/60">Starting Orion...</p>
           </div>
         </div>
       )}

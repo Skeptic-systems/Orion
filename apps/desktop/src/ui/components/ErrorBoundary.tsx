@@ -32,7 +32,7 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
 
     return (
       <div className="app-crash" role="alert">
-        <strong>MiniFy ran into an error</strong>
+        <strong>Orion ran into an error</strong>
         <p>{error.message}</p>
         <button type="button" onClick={() => window.location.reload()}>
           Reload

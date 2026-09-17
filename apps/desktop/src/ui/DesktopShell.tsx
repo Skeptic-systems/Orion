@@ -44,8 +44,8 @@ import {
   subscribeSpotifyLocalPlayback,
   subscribeSpotifyWebPlaybackStatus,
 } from "../lib/spotifyWebPlayback";
-import { useUpdaterStore } from "../lib/updaterStore";
 import { useThemeBackground } from "../lib/themeBackground";
+import { useUpdaterStore } from "../lib/updaterStore";
 import { startRendererWatchdog } from "../lib/watchdog";
 import { getActiveProvider, getActiveProviderType } from "../providers";
 import { convertToUnifiedTrack as convertSpotifyTrack } from "../providers/spotify";
@@ -282,7 +282,7 @@ export default function DesktopShell({ onResetAuth, onUpdateTheme }: DesktopShel
   const currentProgress = current.progress;
   const currentDuration = current.duration;
   const setCurrentState = current.setState;
-  const artistText = currentTrack?.artists.map((artist) => artist.name).join(", ") ?? "MiniFy";
+  const artistText = currentTrack?.artists.map((artist) => artist.name).join(", ") ?? "Orion";
   const artwork = getArtwork(currentTrack);
   const currentTrackId = currentTrack?.id ?? null;
   const isRadioTrack = useAutoplayStore((state) =>
@@ -490,7 +490,7 @@ export default function DesktopShell({ onResetAuth, onUpdateTheme }: DesktopShel
   useEffect(() => startRendererWatchdog(), []);
 
   // Shuffle belongs to Spotify's player and can change from any other app, so
-  // it is read back: pushed by MiniFy's own player, re-read on track changes.
+  // it is read back: pushed by Orion's own player, re-read on track changes.
   useEffect(() => {
     if (provider !== "spotify") return;
     return watchShuffle();
@@ -523,7 +523,7 @@ export default function DesktopShell({ onResetAuth, onUpdateTheme }: DesktopShel
       return;
     }
 
-    // A grant made before MiniFy asked for the `streaming` scope can still read
+    // A grant made before Orion asked for the `streaming` scope can still read
     // the Web API, so nothing looks broken until playback silently refuses to
     // start. Surface it instead. `null` means the scope set is not known yet,
     // which is not the same as stale — do not nag on a guess.
@@ -738,7 +738,7 @@ export default function DesktopShell({ onResetAuth, onUpdateTheme }: DesktopShel
         <div className="desktop-brand">
           <img src="/logo.png" alt="" className="desktop-brand-mark" />
           <div>
-            <div className="desktop-brand-name">MiniFy</div>
+            <div className="desktop-brand-name">Orion</div>
           </div>
         </div>
 
@@ -1194,7 +1194,7 @@ type PlaybackNoticeProps = {
 };
 
 /**
- * Explains, in one line, why MiniFy cannot play audio itself. Each of these
+ * Explains, in one line, why Orion cannot play audio itself. Each of these
  * used to fail silently — playback simply never started, or stopped a few
  * seconds in — which is impossible to debug from the outside.
  */
@@ -1212,8 +1212,8 @@ function PlaybackNotice({
       <output className="desktop-notice is-warning">
         <WarningCircle size={18} weight="bold" />
         <p>
-          <strong>Reconnect Spotify to play music in MiniFy.</strong> This account was authorised
-          before MiniFy could stream, and Spotify keeps the permissions a login was granted.
+          <strong>Reconnect Spotify to play music in Orion.</strong> This account was authorised
+          before Orion could stream, and Spotify keeps the permissions a login was granted.
         </p>
         <button type="button" onClick={onReauthenticate}>
           Reconnect
@@ -1227,12 +1227,12 @@ function PlaybackNotice({
 
   const copy: Record<string, string> = {
     "premium-required":
-      "Spotify only allows apps to stream audio for Premium accounts. MiniFy can still control your other devices.",
+      "Spotify only allows apps to stream audio for Premium accounts. Orion can still control your other devices.",
     "drm-unavailable":
       "This build cannot decrypt Spotify audio, so playback has to run on another device.",
     auth: "Spotify rejected the saved login. Sign in again to restore playback.",
     "sdk-unavailable": status.error ?? "The Spotify player could not be loaded.",
-    "connect-failed": status.error ?? "MiniFy could not register as a Spotify device.",
+    "connect-failed": status.error ?? "Orion could not register as a Spotify device.",
     playback: status.error ?? "Spotify reported a playback problem.",
   };
 
@@ -1287,7 +1287,7 @@ function DesktopUpdateButton({
       ? "Ready to install"
       : phase === "error"
         ? errorMsg || "Update failed"
-        : "MiniFy will restart";
+        : "Orion will restart";
   const Icon = failed ? ArrowClockwise : DownloadSimple;
 
   return (

@@ -1,9 +1,9 @@
 import { getActiveProviderType } from "../../providers";
-import { ownsLocalPlayback } from "./sessionStore";
 import { getDevices, getPlayerState, transferPlayback } from "../../ui/spotifyClient";
 import { logDiagnostic } from "../diagnostics";
 import { getSpotifyWebPlaybackStatus } from "../spotifyWebPlayback";
 import { getSpotifyWebPlaybackDeviceId } from "../spotifyWebPlaybackDevice";
+import { ownsLocalPlayback } from "./sessionStore";
 
 /**
  * Keeps a Spotify Connect target alive so the transport controls always have
@@ -12,7 +12,7 @@ import { getSpotifyWebPlaybackDeviceId } from "../spotifyWebPlaybackDevice";
  * It deliberately does *not* chase the active device around. The previous
  * version transferred playback to `devices.find(type === "Computer") ?? devices[0]`
  * whenever it disliked the current state, which meant it could yank playback
- * off MiniFy — or off a speaker the user had just picked — in the background.
+ * off Orion — or off a speaker the user had just picked — in the background.
  * Now it only steps in when Spotify reports no active device at all.
  */
 
@@ -34,7 +34,7 @@ const state: KeepAliveState = {
 const PING_INTERVAL_MS = 120_000;
 const TRANSFER_SETTLE_MS = 1500;
 /**
- * The Web Playback SDK takes a few seconds to register MiniFy's own device.
+ * The Web Playback SDK takes a few seconds to register Orion's own device.
  * Pinging before then finds "no active device", grabs whatever unrelated
  * speaker is listed first, and the user's music starts playing in the wrong
  * room. Give the local device a head start.
@@ -96,7 +96,7 @@ async function performKeepAlivePing(): Promise<void> {
   if ((await getActiveProviderType()) !== "spotify") return;
 
   const playback = getSpotifyWebPlaybackStatus();
-  // MiniFy either is the device or is still becoming it; either way there is
+  // Orion either is the device or is still becoming it; either way there is
   // nothing to recover and adopting some other device would hijack playback.
   if (playback.ready || playback.connecting) return;
 

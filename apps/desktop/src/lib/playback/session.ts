@@ -300,7 +300,7 @@ async function execute(command: PlaybackCommand) {
         const id = getSpotifyWebPlaybackDeviceId();
         if (!id || !isSpotifyWebPlaybackReady())
           throw new Error(
-            "Mixed playlists need Spotify playback in MiniFy. Connect Spotify Premium and select MiniFy as the device."
+            "Mixed playlists need Spotify playback in Orion. Connect Spotify Premium and select Orion as the device."
           );
         await activateSpotifyWebPlayback();
         await transferPlayback(id, false);

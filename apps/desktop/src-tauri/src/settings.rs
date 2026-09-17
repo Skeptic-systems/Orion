@@ -1,4 +1,4 @@
-﻿use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
 use tauri::{AppHandle, Manager};
@@ -109,7 +109,7 @@ pub struct DesktopLayout {
     pub now_panel_open: Option<bool>,
 }
 
-/// The Connect device the user last picked. `local` stands for MiniFy's own
+/// The Connect device the user last picked. `local` stands for Orion's own
 /// player, whose device id changes every session.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SavedSpotifyDevice {

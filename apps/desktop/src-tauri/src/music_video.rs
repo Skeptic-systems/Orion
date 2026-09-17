@@ -1,8 +1,8 @@
-//! Music videos from YouTube: a YouTube sign-in inside MiniFy, and a search
+//! Music videos from YouTube: a YouTube sign-in inside Orion, and a search
 //! for a track's music video made with that session.
 //!
-//! The sign-in is youtube.com's own, in a MiniFy window. Its cookies land in
-//! the webview profile every MiniFy window shares, so the embedded videos play
+//! The sign-in is youtube.com's own, in a Orion window. Its cookies land in
+//! the webview profile every Orion window shares, so the embedded videos play
 //! as that account (with YouTube Premium, without ads) and the search below
 //! sends the same session. No API project, client id or quota involved.
 
@@ -66,7 +66,7 @@ async fn session_cookies(app: &AppHandle) -> CookieJar {
     jar
 }
 
-/// youtube.com cookies from the webview profile all MiniFy windows share.
+/// youtube.com cookies from the webview profile all Orion windows share.
 async fn youtube_cookies(app: &AppHandle) -> CookieJar {
     let window = app
         .get_webview_window("main")
@@ -120,7 +120,7 @@ pub async fn youtube_web_status(app: AppHandle) -> YouTubeWebStatus {
     }
 }
 
-/// Opens YouTube's sign-in in a MiniFy window and closes it once the session
+/// Opens YouTube's sign-in in a Orion window and closes it once the session
 /// exists. The outcome arrives as a `youtube-web-sign-in` event.
 #[tauri::command]
 pub async fn youtube_web_sign_in(app: AppHandle) -> Result<(), String> {
@@ -168,7 +168,7 @@ pub async fn youtube_web_sign_in(app: AppHandle) -> Result<(), String> {
     Ok(())
 }
 
-/// Drops the Google and YouTube cookies from MiniFy's webview profile. The
+/// Drops the Google and YouTube cookies from Orion's webview profile. The
 /// browser the user normally uses is not touched.
 #[tauri::command]
 pub async fn youtube_web_sign_out(app: AppHandle) -> Result<(), String> {

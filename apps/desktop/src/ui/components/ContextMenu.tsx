@@ -104,7 +104,7 @@ export default function ContextMenu({ x, y, label, items, onClose }: Props) {
       ref={menu}
       role="menu"
       aria-label={label}
-      className="minify-menu"
+      className="orion-menu"
       style={position}
       onKeyDown={onKeyDown}
       onContextMenu={(event) => event.preventDefault()}
@@ -113,7 +113,7 @@ export default function ContextMenu({ x, y, label, items, onClose }: Props) {
         if (item === "separator") {
           const next = items[index + 1];
           const key = `separator-${next && next !== "separator" ? next.label : "end"}`;
-          return <hr key={key} className="minify-menu-separator" />;
+          return <hr key={key} className="orion-menu-separator" />;
         }
         return (
           <button
@@ -127,7 +127,7 @@ export default function ContextMenu({ x, y, label, items, onClose }: Props) {
               item.onSelect();
             }}
           >
-            <span className="minify-menu-icon" aria-hidden="true">
+            <span className="orion-menu-icon" aria-hidden="true">
               {item.icon}
             </span>
             <span>{item.label}</span>

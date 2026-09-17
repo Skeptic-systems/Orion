@@ -14,7 +14,7 @@ use tauri::Emitter;
 use tokio::time::{sleep, Duration};
 
 /// Local OAuth callback ports. These exact redirect URIs must be registered in
-/// the user's Spotify app so MiniFy can fall back when one port is still held by
+/// the user's Spotify app so Orion can fall back when one port is still held by
 /// an old login attempt or another local process.
 const CALLBACK_PORTS: &[u16] = &[3000, 3001, 3002, 3003, 3004];
 const CALLBACK_BIND_ATTEMPTS: usize = 20;
@@ -26,8 +26,8 @@ const MUSIC_PROVIDER_KEY: &str = "music_provider";
 const GRANTED_SCOPES_KEY: &str = "spotify_granted_scopes";
 const SPOTIFY_CLIENT_ID_KEY: &str = "spotify_client_id";
 
-/// Scopes MiniFy asks for. `streaming` is what lets the Web Playback SDK
-/// register MiniFy as a Spotify Connect device and decode audio itself, so an
+/// Scopes Orion asks for. `streaming` is what lets the Web Playback SDK
+/// register Orion as a Spotify Connect device and decode audio itself, so an
 /// install authorised before that scope existed can talk to the Web API but can
 /// never play anything locally. Refresh tokens keep the scope set they were
 /// issued with, so widening this list has to force a re-login — see
@@ -130,7 +130,7 @@ async fn stop_existing_oauth_server() {
 
 async fn bind_callback_listener(ports: &[u16]) -> Result<(tokio::net::TcpListener, u16), String> {
     let Some((preferred_port, fallback_ports)) = ports.split_first() else {
-        return Err("MiniFy has no Spotify callback ports configured".to_string());
+        return Err("Orion has no Spotify callback ports configured".to_string());
     };
     let port_list = ports
         .iter()
@@ -177,7 +177,7 @@ async fn bind_callback_listener(ports: &[u16]) -> Result<(tokio::net::TcpListene
         .map(|e| e.to_string())
         .unwrap_or_else(|| "unknown error".to_string());
     Err(format!(
-        "MiniFy could not open a local Spotify login callback port. Tried ports {port_list}. Close old MiniFy windows or the app using those ports and try again. ({reason})"
+        "Orion could not open a local Spotify login callback port. Tried ports {port_list}. Close old Orion windows or the app using those ports and try again. ({reason})"
     ))
 }
 
@@ -239,7 +239,7 @@ pub fn get_spotify_redirect_uri() -> String {
     redirect_uri_for_port(CALLBACK_PORTS[0])
 }
 
-/// All redirect URIs MiniFy may use for Spotify login.
+/// All redirect URIs Orion may use for Spotify login.
 #[tauri::command]
 pub fn get_spotify_redirect_uris() -> Vec<String> {
     CALLBACK_PORTS
@@ -337,11 +337,11 @@ async fn read_granted_scopes() -> Option<String> {
         .flatten()
 }
 
-/// `Some(false)` when the stored authorisation predates a scope MiniFy now
+/// `Some(false)` when the stored authorisation predates a scope Orion now
 /// needs, so the frontend can send the user back through the login flow instead
 /// of silently running with a token that cannot stream.
 ///
-/// `None` means MiniFy has not seen a token response yet — installs that
+/// `None` means Orion has not seen a token response yet — installs that
 /// authorised before scope tracking existed land here. That is not evidence of
 /// a bad grant, so it must not be reported as one; the scope set is recorded on
 /// the next refresh and the answer becomes definite.
@@ -672,7 +672,7 @@ async fn handle_oauth_callback(
 
 fn success_page() -> String {
     r##"<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>MiniFy - Success</title></head>
+<html><head><meta charset="utf-8"><title>Orion - Success</title></head>
 <body style="font-family:system-ui,sans-serif;background:#0a0a0a;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;margin:0">
 <div style="text-align:center;padding:2rem;background:rgba(255,255,255,0.05);border-radius:16px;border:1px solid rgba(255,255,255,0.1)">
 <div style="width:64px;height:64px;background:#1db954;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">
@@ -696,7 +696,7 @@ fn escape_html(input: &str) -> String {
 fn error_page(message: &str) -> String {
     let escaped_message = escape_html(message);
     format!(r##"<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>MiniFy - Error</title></head>
+<html><head><meta charset="utf-8"><title>Orion - Error</title></head>
 <body style="font-family:system-ui,sans-serif;background:#0a0a0a;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;margin:0">
 <div style="text-align:center;padding:2rem;background:rgba(255,255,255,0.05);border-radius:16px;border:1px solid rgba(239,68,68,0.3);max-width:400px">
 <div style="width:64px;height:64px;background:#ef4444;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">

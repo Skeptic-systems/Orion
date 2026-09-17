@@ -1,5 +1,5 @@
 ---
-"MiniFy": minor
+"Orion": minor
 ---
 
 Add advanced themes that restyle the whole desktop app.

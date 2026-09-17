@@ -26,7 +26,7 @@
     },
     "themes": {
       "title": "Thèmes Personnalisables",
-      "description": "Basculez entre les thèmes et personnalisez les couleurs pour rendre MiniFy vraiment vôtre."
+      "description": "Basculez entre les thèmes et personnalisez les couleurs pour rendre Orion vraiment vôtre."
     },
     "performance": {
       "title": "Ultra Rapide",
@@ -42,8 +42,8 @@
     }
   },
   "download": {
-    "sectionTitle": "Télécharger MiniFy",
-    "sectionDescription": "Commencez gratuitement avec MiniFy. Disponible pour Windows et Linux.",
+    "sectionTitle": "Télécharger Orion",
+    "sectionDescription": "Commencez gratuitement avec Orion. Disponible pour Windows et Linux.",
     "latestVersion": "Dernière Version",
     "loading": "Chargement des informations de version...",
     "windowsDescription": "Windows 10/11 (64-bit)",
@@ -55,7 +55,7 @@
     "learnMore": "En savoir plus"
   },
   "downloadPage": {
-    "title": "Télécharger MiniFy",
+    "title": "Télécharger Orion",
     "subtitle": "Choisissez votre plateforme et commencez avec le meilleur mini lecteur Spotify",
     "recommended": "Recommandé",
     "windows": {
@@ -106,12 +106,12 @@
         "Téléchargez le fichier .exe",
         "Exécutez l'installateur",
         "Suivez les étapes d'installation",
-        "Lancez MiniFy et connectez-vous avec Spotify"
+        "Lancez Orion et connectez-vous avec Spotify"
       ],
       "macos": [
         "Téléchargez le fichier .dmg",
-        "Ouvrez le DMG et glissez MiniFy dans Applications",
-        "Ouvrez MiniFy depuis le dossier Applications",
+        "Ouvrez le DMG et glissez Orion dans Applications",
+        "Ouvrez Orion depuis le dossier Applications",
         "En cas d'avertissement: Préférences Système → Sécurité"
       ],
       "linux": {
@@ -129,7 +129,7 @@
   },
   "opensource": {
     "title": "Open Source et Communauté",
-    "description": "MiniFy est développé ouvertement avec des contributions de développeurs du monde entier. Rejoignez-nous!",
+    "description": "Orion est développé ouvertement avec des contributions de développeurs du monde entier. Rejoignez-nous!",
     "stars": "Étoiles",
     "forks": "Forks",
     "contributors": "Contributeurs",
@@ -148,7 +148,7 @@
     "contributing": "Contribuer",
     "codeOfConduct": "Code de Conduite",
     "madeWith": "Fait avec",
-    "byTeam": "par l'équipe MiniFy",
+    "byTeam": "par l'équipe Orion",
     "allRightsReserved": "Tous droits réservés."
   }
 }

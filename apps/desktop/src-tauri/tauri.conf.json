@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "MiniFy",
+  "productName": "Orion",
   "version": "0.1.0",
   "identifier": "com.modiostudio.minify",
   "build": {
@@ -13,7 +13,7 @@
     "macOSPrivateApi": true,
     "windows": [
       {
-        "title": "MiniFy",
+        "title": "Orion",
         "label": "main",
         "width": 1280,
         "height": 820,
@@ -31,31 +31,22 @@
       "csp": null,
       "assetProtocol": {
         "enable": false,
-        "scope": [
-          "https://*.spotify.com/*"
-        ]
+        "scope": ["https://*.spotify.com/*"]
       }
     }
   },
   "bundle": {
-    "resources": [
-      "resources/audio/**/*"
-    ],
+    "resources": ["resources/audio/**/*"],
     "active": true,
     "targets": "all",
     "createUpdaterArtifacts": "v1Compatible",
-    "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.ico"
-    ]
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.ico"]
   },
   "plugins": {
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDdGMzVDRDRGQ0UyRTdEMTgKUldRWWZTN09UODAxZnpvemRYYXc1TTJycERLR3F5cVZXNHBuZ0lTeGpXdXlhR3Ivbjh0ZXNETCsK",
       "endpoints": [
-        "https://github.com/ModioStudio/MiniFy/releases/latest/download/latest.json"
+        "https://github.com/Skeptic-systems/Orion/releases/latest/download/latest.json"
       ],
       "windows": {
         "installMode": "passive"

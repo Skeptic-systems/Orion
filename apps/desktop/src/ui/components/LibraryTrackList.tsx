@@ -127,7 +127,7 @@ export default function LibraryTrackList({
         onSelect: () => onPlay(track, index),
       },
     ];
-    // A playlist MiniFy plays itself ignores Spotify's queue.
+    // A playlist Orion plays itself ignores Spotify's queue.
     if (spotify && !usePlaybackSession.getState().local) {
       playing.push({
         label: "Add to queue",

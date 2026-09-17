@@ -16,6 +16,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: desktop-release
+  cancel-in-progress: false
+
 env:
   TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
   TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
@@ -30,6 +34,19 @@ jobs:
       previous_tag: ${{ steps.next_version.outputs.previous_tag }}
 
     steps:
+      - name: Validate release secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${TAURI_SIGNING_PRIVATE_KEY:-}" ]; then
+            echo "::error::TAURI_SIGNING_PRIVATE_KEY is not configured for this repository"
+            exit 1
+          fi
+          if [ -z "${TAURI_SIGNING_PRIVATE_KEY_PASSWORD:-}" ]; then
+            echo "::error::TAURI_SIGNING_PRIVATE_KEY_PASSWORD is not configured for this repository"
+            exit 1
+          fi
+
       - name: Checkout
         uses: actions/checkout@v6
         with:
@@ -242,7 +259,7 @@ jobs:
       - name: Build Flatpak bundle
         uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
-          bundle: MiniFy_${{ needs.determine-version.outputs.version_without_v }}_x86_64.flatpak
+          bundle: Orion_${{ needs.determine-version.outputs.version_without_v }}_x86_64.flatpak
           manifest-path: apps/desktop/flatpak/com.modiostudio.minify.yml
           cache-key: flatpak-builder-${{ github.sha }}
 
@@ -250,7 +267,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: artifacts-flatpak
-          path: MiniFy_*.flatpak
+          path: Orion_*.flatpak
           if-no-files-found: warn
 
   release:
@@ -304,12 +321,12 @@ jobs:
                 details=$(echo "$content" | tail -n +7 | grep -v "^$" || true)
                 
                 if [ -n "$title" ]; then
-                  if echo "$content" | grep -q '"MiniFy": minor'; then
+                  if echo "$content" | grep -q '"Orion": minor'; then
                     MINOR_CHANGES+="- ${title}\n"
                     if [ -n "$details" ]; then
                       MINOR_CHANGES+="$(echo "$details" | sed 's/^/  /')\n"
                     fi
-                  elif echo "$content" | grep -q '"MiniFy": patch'; then
+                  elif echo "$content" | grep -q '"Orion": patch'; then
                     PATCH_CHANGES+="- ${title}\n"
                     if [ -n "$details" ]; then
                       PATCH_CHANGES+="$(echo "$details" | sed 's/^/  /')\n"
@@ -341,7 +358,7 @@ jobs:
             fi
           else
             BODY+="## 📦 Initial Release\n\n"
-            BODY+="This is the first release of MiniFy!\n\n"
+            BODY+="This is the first release of Orion!\n\n"
           fi
           
           BODY+="---\n\n"

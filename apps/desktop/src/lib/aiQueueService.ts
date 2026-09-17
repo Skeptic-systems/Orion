@@ -12,8 +12,8 @@ import {
 } from "../ui/spotifyClient";
 import { createAIModel, getActiveProviderWithKey } from "./aiClient";
 import { type QueuedTrack, useAIQueueStore } from "./aiQueueStore";
-import { readSettings } from "./settingLib";
 import { ownsLocalPlayback } from "./playback/sessionStore";
+import { readSettings } from "./settingLib";
 
 const AI_QUEUE_SYSTEM_PROMPT = `You are a DJ creating a seamless playlist. Based on the user's recent tracks and taste, suggest exactly 5 NEW tracks that flow well together.
 
@@ -129,22 +129,18 @@ export async function fetchNextBatch(): Promise<QueuedTrack[]> {
   store.setLoading(true);
 
   try {
-    let recentToon: string;
-    let artistToon: string;
-    let recentUris: Set<string>;
-
     const recentTracks = await spotifyFetchRecentlyPlayed(30);
     const topArtists = await spotifyFetchTopArtists("short_term", 10);
 
     const shuffledRecent = shuffleArray(recentTracks).slice(0, 15);
     const recentData = formatTracksForToon(shuffledRecent);
-    recentToon = encode(recentData);
+    const recentToon = encode(recentData);
 
     const shuffledArtists = shuffleArray(topArtists);
     const artistData = formatArtistsForToon(shuffledArtists);
-    artistToon = encode(artistData);
+    const artistToon = encode(artistData);
 
-    recentUris = new Set(recentTracks.map((t) => `spotify:track:${t.id}`));
+    const recentUris = new Set(recentTracks.map((t) => `spotify:track:${t.id}`));
 
     const model = createAIModel(aiProvider.provider, aiProvider.apiKey);
 

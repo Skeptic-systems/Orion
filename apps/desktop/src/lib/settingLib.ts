@@ -81,7 +81,7 @@ export type ProviderPlaybackCache = {
   youtube?: LastPlayedTrack | null;
 };
 
-/** `local` means MiniFy's own player, whose device id changes every session. */
+/** `local` means Orion's own player, whose device id changes every session. */
 export type SavedSpotifyDevice = {
   id: string;
   name: string;

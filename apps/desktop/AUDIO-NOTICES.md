@@ -1,6 +1,6 @@
 # Audio Helpers
 
-MiniFy distributes yt-dlp 2026.08.19 (the official unpacked "onedir" build)
+Orion distributes yt-dlp 2026.08.19 (the official unpacked "onedir" build)
 and Deno 2.9.6 as separate programs. The official yt-dlp builds include GPLv3+
 components. Their component notices are included beside the programs. Deno is
 MIT licensed.
@@ -11,4 +11,4 @@ MIT licensed.
 
 `pnpm --filter desktop audio:prepare` fetches the pinned release artifacts and
 checks their SHA-256 digests. Update the pins and checksums together after
-testing playback. No resolver self-update runs inside MiniFy.
+testing playback. No resolver self-update runs inside Orion.

@@ -53,7 +53,7 @@ export async function readLocalPlaylist(playlistId: string): Promise<LocalPlayli
   return invoke("read_local_playlist", { accountId: await accountId(), playlistId });
 }
 
-/** Local files and songs Spotify pulled have no id; they cannot play in MiniFy. */
+/** Local files and songs Spotify pulled have no id; they cannot play in Orion. */
 function playable(track: UnifiedTrack): boolean {
   return Boolean(track.id) && track.uri.startsWith("spotify:track:");
 }
@@ -156,7 +156,7 @@ export async function fetchAllPlaylists(): Promise<UnifiedPlaylist[]> {
   }
 }
 
-/** Spotify tracks are written to Spotify; YouTube tracks only to MiniFy's local copy. */
+/** Spotify tracks are written to Spotify; YouTube tracks only to Orion's local copy. */
 export async function addTrackToPlaylist(track: UnifiedTrack, playlistId: string): Promise<void> {
   if (track.provider === "spotify") {
     await createSpotifyProvider().addToPlaylist(playlistId, track.uri);

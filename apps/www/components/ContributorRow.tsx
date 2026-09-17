@@ -54,7 +54,7 @@ export function ContributorsRow() {
         ))}
 
         <a
-          href="https://github.com/ModioStudio/MiniFy/graphs/contributors"
+          href="https://github.com/Skeptic-systems/Orion/graphs/contributors"
           target="_blank"
           rel="noopener noreferrer"
           className="ml-4 text-sm text-primary hover:underline"

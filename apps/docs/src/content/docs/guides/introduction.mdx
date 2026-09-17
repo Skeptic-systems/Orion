@@ -1,28 +1,28 @@
 ---
 title: Introduction
-description: Learn about MiniFy - the lightweight Spotify mini player for your desktop.
+description: Learn about Orion - the lightweight Spotify mini player for your desktop.
 ---
 
 import { Card, CardGrid, Aside } from '@astrojs/starlight/components';
 
-# Welcome to MiniFy
+# Welcome to Orion
 
-MiniFy is a **lightweight, beautiful Spotify mini player** designed to enhance your music experience
+Orion is a **lightweight, beautiful Spotify mini player** designed to enhance your music experience
 without getting in the way. Built with modern technologies like [Tauri](https://tauri.app/) and
 [React](https://react.dev/), it delivers native performance while maintaining a sleek, customizable interface.
 
-## What is MiniFy?
+## What is Orion?
 
-MiniFy gives you quick access to your Spotify playback controls from a compact window that stays out
-of your way. Whether you're coding, gaming, or just browsing the web, MiniFy keeps your music controls
+Orion gives you quick access to your Spotify playback controls from a compact window that stays out
+of your way. Whether you're coding, gaming, or just browsing the web, Orion keeps your music controls
 within reach.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────┐
-│                          MiniFy at a Glance                                     │
+│                          Orion at a Glance                                     │
 ├────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                 │
-│   Your Spotify Account                     MiniFy Desktop                       │
+│   Your Spotify Account                     Orion Desktop                       │
 │   ────────────────────                     ──────────────                       │
 │   ┌──────────────────┐                     ┌──────────────────────────────┐    │
 │   │  Playing music   │◀───── OAuth ───────│  🎵 Now Playing              │    │
@@ -61,11 +61,11 @@ within reach.
 - **⏯️ Playback Controls** - Play, pause, skip, and control volume without switching windows
 - **🎨 Multiple Themes** - 8 built-in themes including Catppuccin, Dracula, and more
 - **📐 Flexible Layouts** - Choose from compact, standard, or expanded layouts
-- **⌨️ Global Shortcuts** - Control music even when MiniFy is in the background
+- **⌨️ Global Shortcuts** - Control music even when Orion is in the background
 
 ### AI DJ (AI-Powered Assistant)
 
-MiniFy includes an AI DJ that understands your music taste:
+Orion includes an AI DJ that understands your music taste:
 
 - **Taste Analysis** - Deep analysis of your listening patterns
 - **Smart Recommendations** - Get personalized suggestions based on mood, energy, or genre
@@ -83,22 +83,22 @@ MiniFy includes an AI DJ that understands your music taste:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│                            How MiniFy Works                                      │
+│                            How Orion Works                                      │
 ├─────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                  │
 │   1. Authentication                                                              │
 │   ─────────────────                                                             │
-│   MiniFy connects to Spotify using OAuth 2.0 PKCE                               │
+│   Orion connects to Spotify using OAuth 2.0 PKCE                               │
 │   Your tokens are stored securely in the OS keyring                             │
 │                                                                                  │
 │   2. Playback Monitoring                                                         │
 │   ──────────────────────                                                        │
-│   MiniFy polls Spotify's API every 1-5 seconds                                  │
+│   Orion polls Spotify's API every 1-5 seconds                                  │
 │   Updates display with current track info                                        │
 │                                                                                  │
 │   3. Control Commands                                                            │
 │   ───────────────────                                                           │
-│   When you press play/pause/skip, MiniFy sends commands                         │
+│   When you press play/pause/skip, Orion sends commands                         │
 │   to Spotify's API which controls your active device                            │
 │                                                                                  │
 │   4. AI DJ (Optional)                                                            │
@@ -122,12 +122,12 @@ MiniFy includes an AI DJ that understands your music taste:
 ### Prerequisites
 
 - **Spotify Account** - You need an active Spotify account (Free or Premium)
-- **Active Playback Device** - Music must be playing on some device for MiniFy to control it
+- **Active Playback Device** - Music must be playing on some device for Orion to control it
 
 <Aside type="note">
-MiniFy is a **controller** - it displays and controls music that's already playing on your
+Orion is a **controller** - it displays and controls music that's already playing on your
 Spotify account. You'll need Spotify open on some device (phone, computer, smart speaker, etc.)
-for MiniFy to work.
+for Orion to work.
 </Aside>
 
 ### Hardware Requirements
@@ -140,11 +140,11 @@ for MiniFy to work.
 
 ## Architecture Overview
 
-MiniFy is built with a modern, efficient architecture:
+Orion is built with a modern, efficient architecture:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│                           MiniFy Architecture                                    │
+│                           Orion Architecture                                    │
 ├─────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                  │
 │   ┌─────────────────────────────────────────────────────────────────────────┐   │
@@ -174,7 +174,7 @@ MiniFy is built with a modern, efficient architecture:
 
 We chose Tauri over Electron for several reasons:
 
-| Aspect | Tauri (MiniFy) | Electron |
+| Aspect | Tauri (Orion) | Electron |
 |--------|----------------|----------|
 | Bundle Size | ~10MB | 50-150MB |
 | Memory Usage | ~50MB | 150-300MB |
@@ -187,7 +187,7 @@ Ready to get started? Here are your next steps:
 
 <CardGrid>
   <Card title="Installation" icon="seti:config">
-    [Install MiniFy on your system →](/guides/installation/)
+    [Install Orion on your system →](/guides/installation/)
   </Card>
   <Card title="Quick Start" icon="rocket">
     [Get up and running in 5 minutes →](/guides/quick-start/)

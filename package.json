@@ -1,5 +1,5 @@
 {
-  "name": "MiniFy",
+  "name": "Orion",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -11,6 +11,7 @@
     "quality": "pnpm lint:oxlint",
     "test": "pnpm quality",
     "format": "biome format --write .",
+    "check:ci": "biome check .",
     "check": "biome check --write .",
     "desktop:dev": "pnpm --filter desktop tauri dev",
     "desktop:build": "pnpm --filter desktop build",

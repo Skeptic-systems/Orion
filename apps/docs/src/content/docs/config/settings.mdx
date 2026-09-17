@@ -1,13 +1,13 @@
 ---
 title: Settings
-description: Complete guide to configuring MiniFy - all settings and options explained.
+description: Complete guide to configuring Orion - all settings and options explained.
 ---
 
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
 # Settings
 
-MiniFy offers various settings to customize your experience. Access settings by pressing
+Orion offers various settings to customize your experience. Access settings by pressing
 `Ctrl+,` (Windows/Linux) or `⌘+,` (macOS), or right-click → Settings.
 
 ## Settings Architecture
@@ -48,18 +48,18 @@ MiniFy offers various settings to customize your experience. Access settings by 
 <Tabs>
   <TabItem label="Windows">
     ```
-    %APPDATA%\MiniFy\settings.json
+    %APPDATA%\com.modiostudio.minify\settings.json
     ```
-    Example: `C:\Users\YourName\AppData\Roaming\MiniFy\settings.json`
+    Example: `C:\Users\YourName\AppData\Roaming\com.modiostudio.minify\settings.json`
   </TabItem>
   <TabItem label="macOS">
     ```
-    ~/Library/Application Support/MiniFy/settings.json
+    ~/Library/Application Support/com.modiostudio.minify/settings.json
     ```
   </TabItem>
   <TabItem label="Linux">
     ```
-    ~/.config/MiniFy/settings.json
+    ~/.local/share/com.modiostudio.minify/settings.json
     ```
   </TabItem>
 </Tabs>
@@ -191,17 +191,17 @@ Edit `settings.json` directly:
 
 ```bash
 # Windows PowerShell
-notepad "$env:APPDATA\MiniFy\settings.json"
+notepad "$env:APPDATA\com.modiostudio.minify\settings.json"
 
 # macOS
-open ~/Library/Application\ Support/MiniFy/settings.json
+open ~/Library/Application\ Support/com.modiostudio.minify/settings.json
 
 # Linux
-xdg-open ~/.config/MiniFy/settings.json
+xdg-open ~/.local/share/com.modiostudio.minify/settings.json
 ```
 
 <Aside type="caution">
-MiniFy must be restarted for file changes to take effect.
+Orion must be restarted for file changes to take effect.
 </Aside>
 
 ### Via Command Line
@@ -231,17 +231,17 @@ Delete the settings file:
 <Tabs>
   <TabItem label="Windows">
     ```powershell
-    Remove-Item "$env:APPDATA\MiniFy\settings.json"
+    Remove-Item "$env:APPDATA\com.modiostudio.minify\settings.json"
     ```
   </TabItem>
   <TabItem label="macOS">
     ```bash
-    rm ~/Library/Application\ Support/MiniFy/settings.json
+    rm ~/Library/Application\ Support/com.modiostudio.minify/settings.json
     ```
   </TabItem>
   <TabItem label="Linux">
     ```bash
-    rm ~/.config/MiniFy/settings.json
+    rm ~/.local/share/com.modiostudio.minify/settings.json
     ```
   </TabItem>
 </Tabs>
@@ -278,8 +278,8 @@ Delete the settings file:
 
 ### Settings not saving
 
-- Ensure MiniFy has write permissions to the config directory
-- Check if another instance of MiniFy is running
+- Ensure Orion has write permissions to the config directory
+- Check if another instance of Orion is running
 - Try running as administrator (Windows) or with sudo (Linux)
 
 ### Settings reset after update
@@ -290,12 +290,12 @@ Delete the settings file:
 
 ### Corrupted settings file
 
-If MiniFy won't start due to corrupted settings:
+If Orion won't start due to corrupted settings:
 
 ```bash
 # Backup corrupted file
 mv settings.json settings.json.backup
 
-# MiniFy will create fresh defaults on next launch
+# Orion will create fresh defaults on next launch
 ```
 

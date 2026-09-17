@@ -13,9 +13,9 @@ use std::sync::{mpsc, Mutex};
 use std::time::{Duration, Instant};
 use tauri::State;
 
-// MiniFy Discord Application ID
+// Orion Discord Application ID
 const DISCORD_APPLICATION_ID: &str = "1456693272163385447";
-const GITHUB_URL: &str = "https://github.com/ModioStudio/MiniFy";
+const GITHUB_URL: &str = "https://github.com/Skeptic-systems/Orion";
 /// Discord not running is the normal case; do not knock on its pipe on every update.
 const RECONNECT_BACKOFF: Duration = Duration::from_secs(30);
 /// Discord rejects activity text longer than this.
@@ -110,14 +110,14 @@ fn show(client: &mut DiscordIpcClient, presence: Option<&Presence>) -> bool {
             (clip(track), clip(state))
         }
         None => (
-            "Listening to MiniFy".to_string(),
+            "Listening to Orion".to_string(),
             "Streaming music".to_string(),
         ),
     };
 
     let mut assets = activity::Assets::new()
         .large_image("minify_logo")
-        .large_text("MiniFy - Minimal Music Player");
+        .large_text("Orion - Minimal Music Player");
     if presence.is_some_and(|p| p.ai_queue_active) {
         assets = assets.small_image("ai_queue").small_text("AI Queue Active");
     }

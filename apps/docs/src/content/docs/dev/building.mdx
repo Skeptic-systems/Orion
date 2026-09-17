@@ -1,13 +1,13 @@
 ---
 title: Building from Source
-description: Complete guide to building MiniFy from source code.
+description: Complete guide to building Orion from source code.
 ---
 
 import { Tabs, TabItem, Steps, Aside, Card, CardGrid } from '@astrojs/starlight/components';
 
 # Building from Source
 
-This guide walks you through building MiniFy from source code, whether you're contributing
+This guide walks you through building Orion from source code, whether you're contributing
 to the project or creating a custom build.
 
 ## Build Overview
@@ -150,8 +150,8 @@ cargo --version  # Should match rustc version
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/ModioStudio/MiniFy.git
-   cd MiniFy
+   git clone https://github.com/Skeptic-systems/Orion.git
+   cd Orion
    ```
 
 2. **Install dependencies**
@@ -189,7 +189,7 @@ This command:
 │                                                                                │
 │   $ pnpm desktop:dev                                                          │
 │                                                                                │
-│   > @minify/desktop@0.1.0 dev                                                 │
+│   > desktop@0.0.1 dev                                                         │
 │   > tauri dev                                                                 │
 │                                                                                │
 │        Info Watching for file changes...                                      │
@@ -201,7 +201,7 @@ This command:
 │   Compiling minify v0.1.0...                                                  │
 │   Finished `dev` profile [unoptimized + debuginfo]                           │
 │                                                                                │
-│   [Window opens with MiniFy application]                                      │
+│   [Window opens with Orion application]                                      │
 │                                                                                │
 └────────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -237,19 +237,19 @@ This creates platform-specific installers:
 ```
 apps/desktop/src-tauri/target/release/bundle/
 ├── msi/                    # Windows installer
-│   └── MiniFy_x.x.x_x64.msi
+│   └── Orion_x.x.x_x64.msi
 ├── nsis/                   # Windows NSIS installer
-│   └── MiniFy_x.x.x_x64-setup.exe
+│   └── Orion_x.x.x_x64-setup.exe
 ├── dmg/                    # macOS disk image
-│   └── MiniFy_x.x.x_x64.dmg
+│   └── Orion_x.x.x_x64.dmg
 ├── macos/                  # macOS app bundle
-│   └── MiniFy.app
+│   └── Orion.app
 ├── deb/                    # Debian package
 │   └── minify_x.x.x_amd64.deb
 ├── rpm/                    # Red Hat package
 │   └── minify-x.x.x.x86_64.rpm
 └── appimage/               # Universal Linux
-    └── MiniFy_x.x.x_amd64.AppImage
+    └── Orion_x.x.x_amd64.AppImage
 ```
 
 ### Build with Embedded Client ID

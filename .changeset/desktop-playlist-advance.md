@@ -1,5 +1,5 @@
 ---
-"MiniFy": patch
+"Orion": patch
 ---
 
 Continue playlists after a Spotify song ends instead of stopping.

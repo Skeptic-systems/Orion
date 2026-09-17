@@ -36,7 +36,7 @@ function applyEdit(playlist: LocalPlaylist, action: PlaylistEdit): LocalPlaylist
   return { ...playlist, customized: true, entries };
 }
 
-/** Only YouTube entries live in MiniFy alone; Spotify's are removed in Spotify. */
+/** Only YouTube entries live in Orion alone; Spotify's are removed in Spotify. */
 const removable = (track: UnifiedTrack) => track.provider === "youtube";
 
 /** How many of a playlist's YouTube songs start loading when it opens. */

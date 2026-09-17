@@ -1,17 +1,17 @@
 import { create } from "zustand";
-import { playbackCommand } from "./session";
-import { ownsLocalPlayback, usePlaybackSession } from "./sessionStore";
 import { getPlayerState, setShuffle } from "../../ui/spotifyClient";
 import {
   getSpotifyLocalPlayback,
   isSpotifyWebPlaybackReady,
   subscribeSpotifyLocalPlayback,
 } from "../spotifyWebPlayback";
+import { playbackCommand } from "./session";
+import { ownsLocalPlayback, usePlaybackSession } from "./sessionStore";
 
 /**
  * Spotify's shuffle. It is a setting of the player, not of a playlist: it
  * carries over to whatever plays next and can be flipped from any other
- * Spotify app, so MiniFy reads it back instead of keeping its own copy.
+ * Spotify app, so Orion reads it back instead of keeping its own copy.
  */
 type ShuffleStore = {
   on: boolean;
@@ -22,7 +22,10 @@ type ShuffleStore = {
 export const useShuffleStore = create<ShuffleStore>(() => ({ on: false, busy: false }));
 
 export async function refreshShuffle(): Promise<void> {
-  if (ownsLocalPlayback()) { useShuffleStore.setState({ on: usePlaybackSession.getState().shuffle }); return; }
+  if (ownsLocalPlayback()) {
+    useShuffleStore.setState({ on: usePlaybackSession.getState().shuffle });
+    return;
+  }
   if (useShuffleStore.getState().busy) return;
 
   const local = getSpotifyLocalPlayback();
@@ -37,7 +40,7 @@ export async function refreshShuffle(): Promise<void> {
   }
 }
 
-/** Follows the shuffle state MiniFy's own player reports, whoever changed it. */
+/** Follows the shuffle state Orion's own player reports, whoever changed it. */
 export function watchShuffle(): () => void {
   return subscribeSpotifyLocalPlayback((local) => {
     if (local && !ownsLocalPlayback() && !useShuffleStore.getState().busy) {

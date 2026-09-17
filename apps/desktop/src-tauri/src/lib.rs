@@ -58,7 +58,7 @@ async fn open_mini_player(app: tauri::AppHandle) -> Result<(), String> {
         "mini",
         WebviewUrl::App("index.html?window=mini".into()),
     )
-    .title("MiniFy Mini Player")
+    .title("Orion Mini Player")
     .inner_size(500.0, 150.0)
     .min_inner_size(400.0, 118.0)
     .resizable(false)
@@ -178,8 +178,8 @@ pub fn run() {
         .build(tauri::generate_context!())
         .expect("error while building tauri application");
 
-    // Closing the last window quits. Preventing that left a headless MiniFy
-    // behind on every close; one of them kept "MiniFy Paused" on Discord for
+    // Closing the last window quits. Preventing that left a headless Orion
+    // behind on every close; one of them kept "Orion Paused" on Discord for
     // hours after its window was gone.
     app.run(|_app_handle, _event| {});
 }

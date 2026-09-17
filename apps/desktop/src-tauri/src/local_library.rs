@@ -89,7 +89,7 @@ fn save(app: &AppHandle, state: &mut LocalPlaylist) -> Result<(), String> {
     Ok(())
 }
 
-/// Songs a playlist holds only in MiniFy, on top of what Spotify counts.
+/// Songs a playlist holds only in Orion, on top of what Spotify counts.
 fn local_only(state: &LocalPlaylist) -> usize {
     state.entries.iter().filter(|entry| entry.remote_key.is_none()).count()
 }
@@ -202,7 +202,7 @@ fn edit(state: &mut LocalPlaylist, action: Edit) -> Result<(), String> {
     Ok(())
 }
 
-/// How many YouTube songs each playlist of the account holds in MiniFy.
+/// How many YouTube songs each playlist of the account holds in Orion.
 #[tauri::command]
 pub async fn local_playlist_counts(app: AppHandle, account_id: String) -> Result<HashMap<String, usize>, String> {
     if account_id.is_empty() { return Err("Missing account".into()); }

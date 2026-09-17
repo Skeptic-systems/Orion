@@ -398,7 +398,7 @@ export default function Settings({
     };
   }, []);
 
-  // The youtube.com session inside MiniFy. It backs YouTube search and audio
+  // The youtube.com session inside Orion. It backs YouTube search and audio
   // in both windows, and the desktop music videos.
   useEffect(() => {
     invoke<{ signedIn: boolean }>("youtube_web_status")
@@ -1220,8 +1220,8 @@ export default function Settings({
                     <div>
                       <div className="font-medium">Music videos</div>
                       <p className="text-xs text-[--settings-text-muted] mt-1">
-                        Plays the song's music video, muted and in step with Spotify. MiniFy finds
-                        it on YouTube by itself. One place at a time.
+                        Plays the song's music video, muted and in step with Spotify. Orion finds it
+                        on YouTube by itself. One place at a time.
                       </p>
                     </div>
                   </div>
@@ -1628,7 +1628,7 @@ export default function Settings({
                 <button
                   type="button"
                   className="underline text-[--settings-text] hover:text-[--settings-accent] transition-colors duration-200"
-                  onClick={() => openUrl("https://github.com/ModioStudio/MiniFy")}
+                  onClick={() => openUrl("https://github.com/Skeptic-systems/Orion")}
                 >
                   View source code
                 </button>

@@ -1,24 +1,24 @@
 ---
 title: Architecture
-description: Complete technical architecture documentation for MiniFy.
+description: Complete technical architecture documentation for Orion.
 ---
 
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
 # Architecture
 
-This document provides a comprehensive overview of MiniFy's technical architecture, helping developers
+This document provides a comprehensive overview of Orion's technical architecture, helping developers
 understand how the different parts of the application work together.
 
 ## High-Level System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                         MiniFy System Architecture                          │
+│                         Orion System Architecture                          │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
 │   ┌───────────────────────────────────────────────────────────────────┐     │
-│   │                         MiniFy Monorepo                            │     │
+│   │                         Orion Monorepo                            │     │
 │   │                                                                    │     │
 │   │   ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │     │
 │   │   │  apps/desktop   │  │    apps/www     │  │   apps/docs     │  │     │
@@ -42,10 +42,10 @@ understand how the different parts of the application work together.
 
 ## Monorepo Structure
 
-MiniFy uses a monorepo architecture with pnpm workspaces:
+Orion uses a monorepo architecture with pnpm workspaces:
 
 ```
-MiniFy/
+Orion/
 ├── apps/
 │   ├── desktop/          # Tauri + React desktop application
 │   │   ├── src/          # React frontend code
@@ -70,7 +70,7 @@ MiniFy/
 
 ## Desktop Application Architecture
 
-The desktop app is the core of MiniFy, built with **Tauri 2.0** (Rust backend) and **React** (TypeScript frontend).
+The desktop app is the core of Orion, built with **Tauri 2.0** (Rust backend) and **React** (TypeScript frontend).
 
 ### Component Layers
 
@@ -341,7 +341,7 @@ apps/desktop/src-tauri/
 │   │ Update local   │                             ▼                          │
 │   │ React state    │               ┌─────────────────────────┐              │
 │   └───────┬────────┘               │  File System            │              │
-│           │                        │  ~/.config/MiniFy/      │              │
+│           │                        │  ~/.local/share/com.modiostudio.minify/      │              │
 │           │ User makes changes     │  settings.json          │              │
 │           ▼                        └─────────────────────────┘              │
 │   ┌────────────────┐                                                        │
@@ -428,7 +428,7 @@ await listen('oauth-failed', (event) => {
 
 ## State Management
 
-MiniFy uses React's built-in state management with custom hooks:
+Orion uses React's built-in state management with custom hooks:
 
 ### Player State
 

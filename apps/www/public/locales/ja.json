@@ -26,7 +26,7 @@
     },
     "themes": {
       "title": "カスタマイズ可能なテーマ",
-      "description": "テーマプリセットを切り替え、色をカスタマイズして、MiniFyを自分だけのものに。"
+      "description": "テーマプリセットを切り替え、色をカスタマイズして、Orionを自分だけのものに。"
     },
     "performance": {
       "title": "超高速",
@@ -42,8 +42,8 @@
     }
   },
   "download": {
-    "sectionTitle": "MiniFyをダウンロード",
-    "sectionDescription": "MiniFyを無料で始めましょう。WindowsとLinuxで利用可能。",
+    "sectionTitle": "Orionをダウンロード",
+    "sectionDescription": "Orionを無料で始めましょう。WindowsとLinuxで利用可能。",
     "latestVersion": "最新バージョン",
     "loading": "リリース情報を読み込み中...",
     "windowsDescription": "Windows 10/11 (64ビット)",
@@ -55,7 +55,7 @@
     "learnMore": "詳細"
   },
   "downloadPage": {
-    "title": "MiniFyをダウンロード",
+    "title": "Orionをダウンロード",
     "subtitle": "プラットフォームを選択して、最高のSpotifyミニプレーヤーを始めましょう",
     "recommended": "おすすめ",
     "windows": {
@@ -102,12 +102,12 @@
         ".exeファイルをダウンロード",
         "インストーラーを実行",
         "インストール手順に従う",
-        "MiniFyを起動してSpotifyでログイン"
+        "Orionを起動してSpotifyでログイン"
       ],
       "macos": [
         ".dmgファイルをダウンロード",
-        "DMGを開いてMiniFyをアプリケーションにドラッグ",
-        "アプリケーションフォルダからMiniFyを開く",
+        "DMGを開いてOrionをアプリケーションにドラッグ",
+        "アプリケーションフォルダからOrionを開く",
         "警告時：システム環境設定 → セキュリティ"
       ],
       "linux": {
@@ -125,7 +125,7 @@
   },
   "opensource": {
     "title": "オープンソース＆コミュニティ主導",
-    "description": "MiniFyは世界中の開発者の貢献によりオープンに構築されています。一緒に改善しましょう！",
+    "description": "Orionは世界中の開発者の貢献によりオープンに構築されています。一緒に改善しましょう！",
     "stars": "スター",
     "forks": "フォーク",
     "contributors": "コントリビューター",
@@ -144,7 +144,7 @@
     "contributing": "貢献",
     "codeOfConduct": "行動規範",
     "madeWith": "で作られた",
-    "byTeam": "MiniFyチーム",
+    "byTeam": "Orionチーム",
     "allRightsReserved": "全著作権所有。"
   }
 }

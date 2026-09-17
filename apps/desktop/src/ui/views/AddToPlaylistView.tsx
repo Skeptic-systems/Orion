@@ -27,7 +27,7 @@ export default function AddToPlaylistView({ track, onBack }: AddToPlaylistViewPr
   }, [setLayout]);
 
   // Spotify only takes tracks into playlists the user may edit. A YouTube
-  // track is stored in MiniFy's local copy, so any playlist can take it.
+  // track is stored in Orion's local copy, so any playlist can take it.
   useEffect(() => {
     let alive = true;
     fetchAllPlaylists()
@@ -71,7 +71,7 @@ export default function AddToPlaylistView({ track, onBack }: AddToPlaylistViewPr
           <h1 className="text-base font-semibold">Add to Playlist</h1>
           {track && (
             <p className="text-xs truncate mt-0.5" style={{ color: "var(--settings-text-muted)" }}>
-              {isYouTube ? `${track.name} · saved in MiniFy only` : track.name}
+              {isYouTube ? `${track.name} · saved in Orion only` : track.name}
             </p>
           )}
         </div>

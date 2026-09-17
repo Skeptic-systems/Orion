@@ -25,7 +25,7 @@ export default function VolumeView({ onBack }: VolumeViewProps) {
       setLoading(true);
       const state = await getPlayerState();
       if (state?.device) {
-        // MiniFy's own device reports the scaled level it actually plays at.
+        // Orion's own device reports the scaled level it actually plays at.
         const isLocal = state.device.id === getSpotifyWebPlaybackDeviceId();
         setLocalVolume(
           isLocal ? fromOutputVolume(state.device.volume_percent) : state.device.volume_percent
@@ -37,24 +37,18 @@ export default function VolumeView({ onBack }: VolumeViewProps) {
     loadVolume();
   }, []);
 
-  const handleVolumeChange = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newVolume = Number(e.target.value);
-      setLocalVolume(newVolume);
-      const provider = await getActiveProvider();
-      provider.setVolume(newVolume);
-    },
-    []
-  );
+  const handleVolumeChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = Number(e.target.value);
+    setLocalVolume(newVolume);
+    const provider = await getActiveProvider();
+    provider.setVolume(newVolume);
+  }, []);
 
-  const handlePreset = useCallback(
-    async (preset: number) => {
-      setLocalVolume(preset);
-      const provider = await getActiveProvider();
-      provider.setVolume(preset);
-    },
-    []
-  );
+  const handlePreset = useCallback(async (preset: number) => {
+    setLocalVolume(preset);
+    const provider = await getActiveProvider();
+    provider.setVolume(preset);
+  }, []);
 
   const getVolumeIcon = () => {
     if (volume === 0) return <SpeakerX size={32} weight="fill" />;

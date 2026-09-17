@@ -2,7 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import type { ThemeConfig } from "./themeLoader";
 
 /**
- * Derives the desktop shell's surface palette from a MiniFy theme.
+ * Derives the desktop shell's surface palette from a Orion theme.
  *
  * Themes were written for the mini player, which floats over the desktop and
  * therefore uses translucent panels (`rgba(18,18,18,0.85)`). A full window has
@@ -125,7 +125,7 @@ function toHex({ r, g, b }: Rgb): string {
 
 /**
  * The desktop window keeps the system title bar, which Windows would otherwise
- * paint in its own accent colour regardless of the MiniFy theme.
+ * paint in its own accent colour regardless of the Orion theme.
  */
 function syncNativeTitlebar(background: Rgb, foreground: Rgb): void {
   invoke("set_titlebar_color", {

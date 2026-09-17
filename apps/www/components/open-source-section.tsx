@@ -107,7 +107,7 @@ export function OpenSourceSection() {
               asChild
             >
               <a
-                href="https://github.com/ModioStudio/MiniFy"
+                href="https://github.com/Skeptic-systems/Orion"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -118,7 +118,7 @@ export function OpenSourceSection() {
 
             <Button size="lg" variant="outline" asChild>
               <a
-                href="https://github.com/ModioStudio/MiniFy/blob/main/CONTRIBUTING.md"
+                href="https://github.com/Skeptic-systems/Orion/blob/main/CONTRIBUTING.md"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -132,7 +132,7 @@ export function OpenSourceSection() {
           <motion.p variants={item} className="mt-12 text-sm text-muted-foreground">
             {t.opensource.license}{" "}
             <a
-              href="https://github.com/ModioStudio/MiniFy/blob/main/LICENSE"
+              href="https://github.com/Skeptic-systems/Orion/blob/main/LICENSE"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary hover:underline"

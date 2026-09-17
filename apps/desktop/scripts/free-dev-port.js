@@ -44,12 +44,7 @@ async function findWindowsPids(port) {
 
 async function findUnixPids(port) {
   try {
-    const { stdout } = await execFileAsync("lsof", [
-      "-nP",
-      `-iTCP:${port}`,
-      "-sTCP:LISTEN",
-      "-t",
-    ]);
+    const { stdout } = await execFileAsync("lsof", ["-nP", `-iTCP:${port}`, "-sTCP:LISTEN", "-t"]);
     return unique(
       stdout
         .split(/\s+/)

@@ -298,7 +298,7 @@ fn binary(app: &AppHandle, name: &str) -> Result<PathBuf, String> {
     if path.is_file() {
         Ok(path)
     } else {
-        Err("Audio helper is missing. Run pnpm --filter desktop audio:prepare or reinstall MiniFy.".into())
+        Err("Audio helper is missing. Run pnpm --filter desktop audio:prepare or reinstall Orion.".into())
     }
 }
 

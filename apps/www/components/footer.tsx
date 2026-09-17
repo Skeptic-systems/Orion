@@ -1,7 +1,7 @@
 "use client";
 
 import { DiscordLogoIcon } from "@phosphor-icons/react";
-import { Github, Heart, Twitter } from "lucide-react";
+import { Github, Heart } from "lucide-react";
 import Image from "next/image";
 import { useLanguage } from "@/hooks/use-language";
 
@@ -18,19 +18,19 @@ export function Footer() {
             <div className="mb-4 flex items-center gap-3">
               <Image
                 src="/logo.png"
-                alt="MiniFy Logo"
+                alt="Orion Logo"
                 width={36}
                 height={36}
                 className="h-9 w-9 dark:invert-0 invert"
               />
-              <span className="text-xl font-bold tracking-tight">MiniFy</span>
+              <span className="text-xl font-bold tracking-tight">Orion</span>
             </div>
 
             <p className="mb-5 max-w-md text-sm text-muted-foreground">{t.footer.description}</p>
 
             <div className="flex items-center gap-4">
               <a
-                href="https://github.com/ModioStudio/MiniFy"
+                href="https://github.com/Skeptic-systems/Orion"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground transition-transform hover:scale-110 hover:text-primary"
@@ -38,14 +38,6 @@ export function Footer() {
                 <Github className="h-5 w-5" />
               </a>
 
-              <a
-                href="https://twitter.com/modiostudio"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground transition-transform hover:scale-110 hover:text-primary"
-              >
-                <Twitter className="h-5 w-5" />
-              </a>
               <a
                 href="https://discord.gg/P3meTq3trF"
                 target="_blank"
@@ -79,7 +71,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://github.com/ModioStudio/MiniFy/releases"
+                  href="https://github.com/Skeptic-systems/Orion/releases"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground transition-colors hover:text-primary"
@@ -96,7 +88,7 @@ export function Footer() {
             <ul className="space-y-2 text-sm">
               <li>
                 <a
-                  href="https://github.com/ModioStudio/MiniFy"
+                  href="https://github.com/Skeptic-systems/Orion"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground transition-colors hover:text-primary"
@@ -106,7 +98,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://github.com/ModioStudio/MiniFy/blob/main/CONTRIBUTING.md"
+                  href="https://github.com/Skeptic-systems/Orion/blob/main/CONTRIBUTING.md"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground transition-colors hover:text-primary"
@@ -116,7 +108,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://github.com/ModioStudio/MiniFy/blob/main/CODE_OF_CONDUCT.md"
+                  href="https://github.com/Skeptic-systems/Orion/blob/main/CODE_OF_CONDUCT.md"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground transition-colors hover:text-primary"
@@ -136,7 +128,7 @@ export function Footer() {
             {t.footer.byTeam}
           </p>
           <p className="mt-2">
-            © {currentYear} MiniFy. {t.footer.allRightsReserved}
+            © {currentYear} Orion. {t.footer.allRightsReserved}
           </p>
         </div>
       </div>

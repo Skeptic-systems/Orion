@@ -190,7 +190,7 @@ export default function DeviceMenu() {
 
             {devices.length === 0 && !loading && !error && (
               <p className="device-menu-empty">
-                No Spotify devices found. Open MiniFy playback or start the Spotify app somewhere.
+                No Spotify devices found. Open Orion playback or start the Spotify app somewhere.
               </p>
             )}
 

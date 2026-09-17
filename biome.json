@@ -22,6 +22,7 @@
       "!**/apps/**/*/build",
       "!**/apps/www/components/ui",
       "!**/apps/www/styles",
+      "!**/apps/**/*/src-tauri/gen",
       "!**/apps/**/*/src-tauri/target",
       "!**/apps/www/app/globals.css"
     ]
@@ -30,6 +31,7 @@
     "enabled": true,
     "indentStyle": "space",
     "indentWidth": 2,
+    "lineEnding": "auto",
     "lineWidth": 100
   },
   "assist": {

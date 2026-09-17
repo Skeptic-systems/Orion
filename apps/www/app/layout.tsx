@@ -9,7 +9,7 @@ const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
 
 export const metadata: Metadata = {
-  title: "MiniFy - Lightweight Spotify Mini Player",
+  title: "Orion - Lightweight Spotify Mini Player",
   description:
     "A beautiful desktop mini player for Spotify. Built with Tauri + React, featuring OAuth authentication, multiple layouts, and customizable themes.",
   icons: {

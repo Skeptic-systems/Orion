@@ -14,7 +14,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { useTheme } from "@/hooks/use-theme";
 import { LANGUAGES, type Language } from "@/lib/translations";
 
-const DOCS_URL = "https://minify-docs.modio.studio/";
+const DOCS_URL = "https://minify-docs.skeptic.run/";
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
@@ -38,15 +38,15 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/70 backdrop-blur-xl">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <a href="/#" className="flex items-center gap-2" aria-label="MiniFy">
+        <a href="/#" className="flex items-center gap-2" aria-label="Orion">
           <Image
             src="/logo.png"
-            alt="MiniFy logo"
+            alt="Orion logo"
             width={64}
             height={64}
             className="h-8 w-8 dark:invert-0 invert"
           />
-          <span className="text-lg font-bold tracking-tight">MiniFy</span>
+          <span className="text-lg font-bold tracking-tight">Orion</span>
         </a>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -69,7 +69,7 @@ export function Header() {
             {t.nav.opensource}
           </a>
           <a
-            href="https://github.com/ModioStudio/MiniFy"
+            href="https://github.com/Skeptic-systems/Orion"
             target="_blank"
             rel="noopener noreferrer"
             className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -158,7 +158,7 @@ export function Header() {
               {t.nav.docs}
             </a>
             <a
-              href="https://github.com/ModioStudio/MiniFy"
+              href="https://github.com/Skeptic-systems/Orion"
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm font-medium transition-colors hover:text-primary"

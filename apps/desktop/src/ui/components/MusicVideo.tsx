@@ -95,7 +95,7 @@ const offListeners = new Set<() => void>();
 function switchOffForSession(reason: string): void {
   if (offForSession) return;
   offForSession = true;
-  logDiagnostic("video", `music videos off until MiniFy restarts: ${reason}`);
+  logDiagnostic("video", `music videos off until Orion restarts: ${reason}`);
   for (const listener of offListeners) listener();
 }
 

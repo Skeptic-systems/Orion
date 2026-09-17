@@ -7,7 +7,7 @@
 //
 // Env:
 //   ARTIFACTS_DIR  directory holding the collected release files (+ .sig)
-//   REPO           owner/name, e.g. ModioStudio/MiniFy
+//   REPO           owner/name, e.g. Skeptic-systems/Orion
 //   TAG            release tag used in the download URL, e.g. v0.7.0
 //   VERSION        plain semver written into the manifest, e.g. 0.7.0
 //   NOTES          optional release notes string

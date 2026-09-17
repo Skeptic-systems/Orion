@@ -33,7 +33,7 @@ Create a file in `.changeset/` with a random name like `happy-dogs-dance.md`:
 
 ```md
 ---
-"MiniFy": <type>
+"Orion": <type>
 ---
 
 <Short description of the change>
@@ -58,7 +58,7 @@ Create a file in `.changeset/` with a random name like `happy-dogs-dance.md`:
 
 ```md
 ---
-"MiniFy": minor
+"Orion": minor
 ---
 
 Added theme customization support
@@ -71,7 +71,7 @@ Added theme customization support
 
 ```md
 ---
-"MiniFy": patch
+"Orion": patch
 ---
 
 Fixed Spotify authentication timeout issue
@@ -81,7 +81,7 @@ Fixed Spotify authentication timeout issue
 
 ```md
 ---
-"MiniFy": major
+"Orion": major
 ---
 
 Migrated to new configuration format

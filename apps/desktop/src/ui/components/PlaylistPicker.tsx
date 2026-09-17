@@ -18,7 +18,7 @@ export default function PlaylistPicker({
   useEffect(() => {
     dialog.current?.showModal();
     let alive = true;
-    // A YouTube track only lands in MiniFy's local copy, so any playlist can take it.
+    // A YouTube track only lands in Orion's local copy, so any playlist can take it.
     fetchAllPlaylists()
       .then((all) => {
         if (alive) setPlaylists(all.filter((p) => track.provider === "youtube" || p.writable));
@@ -59,7 +59,7 @@ export default function PlaylistPicker({
         <div>
           <h2>Add to playlist</h2>
           <p>{track.name}</p>
-          {track.provider === "youtube" && <p>Saved in MiniFy only, not synced to Spotify</p>}
+          {track.provider === "youtube" && <p>Saved in Orion only, not synced to Spotify</p>}
         </div>
         <button type="button" onClick={onClose} aria-label="Close" title="Close">
           <X size={20} />

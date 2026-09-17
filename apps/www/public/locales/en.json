@@ -26,7 +26,7 @@
     },
     "themes": {
       "title": "Customizable Themes",
-      "description": "Switch between theme presets and customize colors to make MiniFy truly yours."
+      "description": "Switch between theme presets and customize colors to make Orion truly yours."
     },
     "performance": {
       "title": "Lightning Fast",
@@ -42,8 +42,8 @@
     }
   },
   "download": {
-    "sectionTitle": "Download MiniFy",
-    "sectionDescription": "Get started with MiniFy for free. Available for Windows and Linux.",
+    "sectionTitle": "Download Orion",
+    "sectionDescription": "Get started with Orion for free. Available for Windows and Linux.",
     "latestVersion": "Latest Version",
     "loading": "Loading release information...",
     "windowsDescription": "Windows 10/11 (64-bit)",
@@ -55,7 +55,7 @@
     "learnMore": "Learn more"
   },
   "downloadPage": {
-    "title": "Download MiniFy",
+    "title": "Download Orion",
     "subtitle": "Choose your platform and get started with the best Spotify mini player",
     "recommended": "Recommended",
     "windows": {
@@ -102,12 +102,12 @@
         "Download the .exe file",
         "Run the installer",
         "Follow installation steps",
-        "Launch MiniFy and sign in with Spotify"
+        "Launch Orion and sign in with Spotify"
       ],
       "macos": [
         "Download the .dmg file",
-        "Open DMG and drag MiniFy to Applications",
-        "Open MiniFy from Applications folder",
+        "Open DMG and drag Orion to Applications",
+        "Open Orion from Applications folder",
         "If warning: System Preferences → Security"
       ],
       "linux": {
@@ -125,7 +125,7 @@
   },
   "opensource": {
     "title": "Open Source & Community Driven",
-    "description": "MiniFy is built in the open with contributions from developers worldwide. Join us in making it better!",
+    "description": "Orion is built in the open with contributions from developers worldwide. Join us in making it better!",
     "stars": "Stars",
     "forks": "Forks",
     "contributors": "Contributors",
@@ -144,7 +144,7 @@
     "contributing": "Contributing",
     "codeOfConduct": "Code of Conduct",
     "madeWith": "Made with",
-    "byTeam": "by the MiniFy team",
+    "byTeam": "by the Orion team",
     "allRightsReserved": "All rights reserved."
   }
 }

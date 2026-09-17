@@ -159,7 +159,7 @@ pub async fn renderer_heartbeat(visible: bool, sent_at: f64) {
     LAST_HEARTBEAT_MS.store(now, Ordering::Relaxed);
 }
 
-/// Leaves a trace when MiniFy stops responding. Two clocks are watched: the UI
+/// Leaves a trace when Orion stops responding. Two clocks are watched: the UI
 /// thread (window messages and synchronous commands) and the main window's
 /// renderer (all of the app's JavaScript), because a freeze in either looks
 /// the same from the outside and needs a different fix.
@@ -170,7 +170,7 @@ pub fn start_watchdog(app: AppHandle) {
     }
     write_log(
         "watchdog",
-        &format!("MiniFy {} started", app.package_info().version),
+        &format!("Orion {} started", app.package_info().version),
     );
 
     let spawned = std::thread::Builder::new()

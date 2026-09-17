@@ -1,13 +1,13 @@
 ---
 title: Custom Themes
-description: Complete guide to creating and managing custom themes for MiniFy.
+description: Complete guide to creating and managing custom themes for Orion.
 ---
 
 import { Aside, Steps, Tabs, TabItem, Card, CardGrid } from '@astrojs/starlight/components';
 
 # Custom Themes
 
-MiniFy supports fully customizable themes. This guide walks you through creating your own theme
+Orion supports fully customizable themes. This guide walks you through creating your own theme
 from scratch, understanding the theme system, and sharing themes with the community.
 
 ## Theme System Overview
@@ -89,18 +89,18 @@ Custom themes should be placed in the user themes directory:
 <Tabs>
   <TabItem label="Windows">
     ```
-    %APPDATA%\MiniFy\themes\
+    %APPDATA%\com.modiostudio.minify\themes\
     ```
-    Example: `C:\Users\YourName\AppData\Roaming\MiniFy\themes\`
+    Example: `C:\Users\YourName\AppData\Roaming\com.modiostudio.minify\themes\`
   </TabItem>
   <TabItem label="macOS">
     ```
-    ~/Library/Application Support/MiniFy/themes/
+    ~/Library/Application Support/com.modiostudio.minify/themes/
     ```
   </TabItem>
   <TabItem label="Linux">
     ```
-    ~/.config/MiniFy/themes/
+    ~/.local/share/com.modiostudio.minify/themes/
     ```
   </TabItem>
 </Tabs>
@@ -113,17 +113,17 @@ Custom themes should be placed in the user themes directory:
    <Tabs>
      <TabItem label="Windows">
        ```powershell
-       New-Item -ItemType Directory -Force "$env:APPDATA\MiniFy\themes"
+       New-Item -ItemType Directory -Force "$env:APPDATA\com.modiostudio.minify\themes"
        ```
      </TabItem>
      <TabItem label="macOS">
        ```bash
-       mkdir -p ~/Library/Application\ Support/MiniFy/themes
+       mkdir -p ~/Library/Application\ Support/com.modiostudio.minify/themes
        ```
      </TabItem>
      <TabItem label="Linux">
        ```bash
-       mkdir -p ~/.config/MiniFy/themes
+       mkdir -p ~/.local/share/com.modiostudio.minify/themes
        ```
      </TabItem>
    </Tabs>
@@ -173,9 +173,9 @@ Custom themes should be placed in the user themes directory:
    }
    ```
 
-3. **Restart MiniFy**
+3. **Restart Orion**
 
-   Close and reopen MiniFy to load the new theme.
+   Close and reopen Orion to load the new theme.
 
 4. **Select your theme**
 
@@ -563,7 +563,7 @@ Before sharing your theme, test these scenarios:
 
 ### Theme Validation
 
-MiniFy validates themes on load. Invalid themes are skipped with a console warning.
+Orion validates themes on load. Invalid themes are skipped with a console warning.
 
 **Common validation errors:**
 - Missing `name` field
@@ -583,12 +583,12 @@ Open DevTools (F12) to see theme loading errors:
 
 ## Sharing Themes
 
-### Contributing to MiniFy
+### Contributing to Orion
 
 <Steps>
 1. **Fork the repository**
 
-   [Fork on GitHub](https://github.com/ModioStudio/MiniFy)
+   [Fork on GitHub](https://github.com/Skeptic-systems/Orion)
 
 2. **Add your theme**
 
@@ -670,7 +670,7 @@ All theme properties are mapped to CSS custom properties:
 1. Check the file is valid JSON
 2. Verify it's in the correct directory
 3. Ensure the file has a `.json` extension
-4. Restart MiniFy
+4. Restart Orion
 
 ### Colors not applying correctly
 

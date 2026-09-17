@@ -1,7 +1,7 @@
 /**
- * MiniFy Auth Clear Tool
+ * Orion Auth Clear Tool
  *
- * Cross-platform script to clear all authentication data from MiniFy.
+ * Cross-platform script to clear all authentication data from Orion.
  * Supports: Windows, macOS, Linux
  *
  * Usage: node scripts/clear-auth.js
@@ -15,6 +15,7 @@ import { promisify } from "node:util";
 
 const execAsync = promisify(exec);
 
+const APP_IDENTIFIER = "com.modiostudio.minify";
 const KEYRING_SERVICE = "minify";
 const KEYRING_KEYS = [
   // Spotify
@@ -38,9 +39,9 @@ const KEYRING_KEYS = [
 ];
 
 /**
- * Get the settings file path based on the current platform
+ * Get current and legacy settings paths for the current platform.
  */
-function getSettingsPath() {
+function getSettingsPaths() {
   const platform = process.platform;
 
   switch (platform) {
@@ -49,16 +50,27 @@ function getSettingsPath() {
       if (!appData) {
         throw new Error("APPDATA environment variable not found");
       }
-      return join(appData, "MiniFy", "settings.json");
+      return [
+        join(appData, APP_IDENTIFIER, "settings.json"),
+        join(appData, "Orion", "settings.json"),
+        join(appData, "MiniFy", "settings.json"),
+      ];
     }
     case "darwin":
-      return join(homedir(), "Library", "Application Support", "MiniFy", "settings.json");
-    case "linux":
-      return join(
-        process.env.XDG_CONFIG_HOME || join(homedir(), ".config"),
-        "MiniFy",
-        "settings.json"
-      );
+      return [
+        join(homedir(), "Library", "Application Support", APP_IDENTIFIER, "settings.json"),
+        join(homedir(), "Library", "Application Support", "Orion", "settings.json"),
+        join(homedir(), "Library", "Application Support", "MiniFy", "settings.json"),
+      ];
+    case "linux": {
+      const dataHome = process.env.XDG_DATA_HOME || join(homedir(), ".local", "share");
+      const configHome = process.env.XDG_CONFIG_HOME || join(homedir(), ".config");
+      return [
+        join(dataHome, APP_IDENTIFIER, "settings.json"),
+        join(configHome, "Orion", "settings.json"),
+        join(configHome, "MiniFy", "settings.json"),
+      ];
+    }
     default:
       throw new Error(`Unsupported platform: ${platform}`);
   }
@@ -167,32 +179,35 @@ async function clearCredentials() {
 /**
  * Clear the settings file
  */
-async function clearSettingsFile() {
+async function clearSettingsFiles() {
   console.log("\n📁 Clearing settings file...");
   console.log("   This includes: provider settings, themes, layout");
 
-  try {
-    const settingsPath = getSettingsPath();
-    await rm(settingsPath);
-    console.log(`  ✓ Deleted: ${settingsPath}`);
-  } catch (err) {
-    if (err?.code === "ENOENT") {
-      console.log("  - Not found: settings.json (already clean)");
-    } else {
-      console.error("  ✗ Error deleting settings file:", err?.message || err);
-      process.exit(1);
+  let deleted = false;
+  for (const settingsPath of getSettingsPaths()) {
+    try {
+      await rm(settingsPath);
+      deleted = true;
+      console.log(`  ✓ Deleted: ${settingsPath}`);
+    } catch (err) {
+      if (err?.code !== "ENOENT") {
+        console.error(`  ✗ Error deleting ${settingsPath}:`, err?.message || err);
+        process.exit(1);
+      }
     }
   }
+
+  if (!deleted) console.log("  - Not found: settings.json (already clean)");
 }
 
 async function main() {
-  console.log("🧹 MiniFy Auth Clear Tool\n");
+  console.log("🧹 Orion Auth Clear Tool\n");
   console.log(`   Platform: ${process.platform}`);
   console.log("   Clears: Spotify tokens, AI API keys, settings");
   console.log("=".repeat(40));
 
   await clearCredentials();
-  await clearSettingsFile();
+  await clearSettingsFiles();
 
   console.log(`\n${"=".repeat(40)}`);
   console.log("✅ All credentials and settings cleared.");

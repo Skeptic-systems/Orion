@@ -4,7 +4,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import type { LanguageModelV1 } from "ai";
 import { type AIProviderConfig, type AIProviderType, getAIApiKey } from "./settingLib";
 
-export const AI_DJ_SYSTEM_PROMPT = `You are an AI DJ assistant for MiniFy, a desktop music player app.
+export const AI_DJ_SYSTEM_PROMPT = `You are an AI DJ assistant for Orion, a desktop music player app.
 
 Your role is to help users discover and play music based on their listening history, preferences, and mood.
 

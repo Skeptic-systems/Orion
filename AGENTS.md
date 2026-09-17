@@ -17,7 +17,7 @@ exists in a subdirectory.
 
 ## Project Overview
 
-MiniFy is a pnpm monorepo for a Spotify-focused desktop mini player and its web
+Orion is a pnpm monorepo for a Spotify-focused desktop mini player and its web
 presence.
 
 - `apps/desktop`: Tauri 2 desktop app with a React/Vite/Tailwind frontend and a

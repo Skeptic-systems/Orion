@@ -109,7 +109,7 @@ export function HeroSection() {
 
             <Button size="lg" variant="outline" asChild>
               <a
-                href="https://github.com/ModioStudio/MiniFy"
+                href="https://github.com/Skeptic-systems/Orion"
                 target="_blank"
                 rel="noopener noreferrer"
               >

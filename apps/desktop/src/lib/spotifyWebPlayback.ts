@@ -105,7 +105,7 @@ export type SpotifyPlaybackFailure =
   | "playback";
 
 export type SpotifyWebPlaybackStatus = {
-  /** True once MiniFy is registered with Spotify as a playable Connect device. */
+  /** True once Orion is registered with Spotify as a playable Connect device. */
   ready: boolean;
   connecting: boolean;
   deviceId: string | null;
@@ -129,12 +129,12 @@ export type SpotifyLocalPlayback = {
 };
 
 const SCRIPT_ID = "spotify-web-playback-sdk";
-const DEVICE_NAME = "MiniFy";
+const DEVICE_NAME = "Orion";
 const MAX_RECONNECT_ATTEMPTS = 6;
 /**
  * A rejected token is retried once with a freshly minted one. If that is also
  * rejected the problem is the grant itself — almost always a login made before
- * MiniFy asked for the `streaming` scope — and retrying forever would just
+ * Orion asked for the `streaming` scope — and retrying forever would just
  * register a new Connect device every second.
  */
 const MAX_AUTH_RETRIES = 2;
@@ -306,7 +306,7 @@ function teardownPlayer(): void {
 
 /**
  * Returns playback to the speaker the user picked last session, if it is
- * online. False means MiniFy should claim playback itself.
+ * online. False means Orion should claim playback itself.
  */
 async function restoreSavedDevice(localDeviceId: string): Promise<boolean> {
   const saved = (await readSettings()).spotify_device;
@@ -320,7 +320,7 @@ async function restoreSavedDevice(localDeviceId: string): Promise<boolean> {
       devices.find((device) => device.id === saved.id) ??
       devices.find((device) => device.name === saved.name && device.id !== localDeviceId);
     if (!target) {
-      logDiagnostic("playback", `saved device ${saved.name} is offline, using MiniFy`);
+      logDiagnostic("playback", `saved device ${saved.name} is offline, using Orion`);
       return false;
     }
 
@@ -340,7 +340,7 @@ async function claimPlaybackDevice(deviceId: string): Promise<void> {
   // Registering the device is not enough. Until playback is transferred, every
   // Web API call still targets whatever Spotify considers the active device,
   // which is normally the official desktop client. This transfer is what makes
-  // MiniFy a player rather than a remote control.
+  // Orion a player rather than a remote control.
   //
   // The `ready` event fires before Spotify's backend has published the device,
   // so the first transfer reliably 404s. Retry until it lands.
@@ -402,7 +402,7 @@ export function initializeSpotifyWebPlayback(): Promise<void> {
     if (!drm.widevine) {
       // Without a CDM the SDK still connects and playback even starts, because
       // Spotify ships a few seconds of unencrypted lead-in — and then it dies
-      // mid-track. Refusing to connect keeps MiniFy honest and leaves Connect
+      // mid-track. Refusing to connect keeps Orion honest and leaves Connect
       // control pointed at a device that can actually decode.
       publishStatus({
         ready: false,
@@ -410,7 +410,7 @@ export function initializeSpotifyWebPlayback(): Promise<void> {
         failure: "drm-unavailable",
         error:
           "This webview has no Widevine CDM, so Spotify audio cannot be decrypted here. " +
-          "MiniFy can still control your other Spotify devices.",
+          "Orion can still control your other Spotify devices.",
       });
       logDiagnostic("playback", `no widevine: ${drm.detail}`);
       return;
@@ -501,7 +501,7 @@ export function initializeSpotifyWebPlayback(): Promise<void> {
             failure: "auth",
             error:
               "Spotify rejected this login for playback. Reconnect your account — a login " +
-              "made before MiniFy could stream does not carry the streaming permission.",
+              "made before Orion could stream does not carry the streaming permission.",
           });
           logDiagnostic("playback", `auth rejected ${authRetries}x, giving up: ${message}`);
           return;

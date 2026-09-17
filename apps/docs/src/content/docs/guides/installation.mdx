@@ -1,13 +1,13 @@
 ---
 title: Installation
-description: Step-by-step guide to install MiniFy on Windows, macOS, or Linux.
+description: Step-by-step guide to install Orion on Windows, macOS, or Linux.
 ---
 
 import { Tabs, TabItem, Steps, Aside, Card, CardGrid } from '@astrojs/starlight/components';
 
 # Installation
 
-MiniFy is available for Windows, macOS, and Linux. Choose your platform below and follow the
+Orion is available for Windows, macOS, and Linux. Choose your platform below and follow the
 installation instructions.
 
 ## Download
@@ -16,13 +16,13 @@ Get the latest release from GitHub:
 
 <CardGrid>
   <Card title="Windows" icon="seti:windows">
-    [Download .msi Installer](https://github.com/ModioStudio/MiniFy/releases/latest)
+    [Download .msi Installer](https://github.com/Skeptic-systems/Orion/releases/latest)
   </Card>
   <Card title="macOS" icon="seti:apple">
-    [Download .dmg](https://github.com/ModioStudio/MiniFy/releases/latest)
+    [Download .dmg](https://github.com/Skeptic-systems/Orion/releases/latest)
   </Card>
   <Card title="Linux" icon="seti:linux">
-    [Download .deb / .rpm / .AppImage](https://github.com/ModioStudio/MiniFy/releases/latest)
+    [Download .deb / .rpm / .AppImage](https://github.com/Skeptic-systems/Orion/releases/latest)
   </Card>
 </CardGrid>
 
@@ -33,7 +33,7 @@ Get the latest release from GitHub:
     <Steps>
     1. **Download the installer**
 
-       Go to the [GitHub Releases](https://github.com/ModioStudio/MiniFy/releases/latest) page
+       Go to the [GitHub Releases](https://github.com/Skeptic-systems/Orion/releases/latest) page
        and download the `.msi` installer for Windows.
 
     2. **Run the installer**
@@ -42,28 +42,28 @@ Get the latest release from GitHub:
 
        ```
        ┌─────────────────────────────────────────────────┐
-       │  MiniFy Setup                                   │
+       │  Orion Setup                                   │
        │                                                 │
-       │  Welcome to the MiniFy Setup Wizard            │
+       │  Welcome to the Orion Setup Wizard            │
        │                                                 │
-       │  This will install MiniFy on your computer.   │
+       │  This will install Orion on your computer.   │
        │                                                 │
        │              [ Next > ]  [ Cancel ]            │
        └─────────────────────────────────────────────────┘
        ```
 
-    3. **Launch MiniFy**
+    3. **Launch Orion**
 
-       Find MiniFy in your Start Menu and launch it.
+       Find Orion in your Start Menu and launch it.
 
     4. **Authenticate with Spotify**
 
-       Click "Connect to Spotify" and authorize MiniFy to access your account.
+       Click "Connect to Spotify" and authorize Orion to access your account.
     </Steps>
 
     <Aside type="note">
-      **Windows Defender SmartScreen**: You may see a warning because MiniFy is a new application.
-      Click "More info" → "Run anyway" to proceed. MiniFy is open source and safe.
+      **Windows Defender SmartScreen**: You may see a warning because Orion is a new application.
+      Click "More info" → "Run anyway" to proceed. Orion is open source and safe.
     </Aside>
 
     ### System Requirements (Windows)
@@ -80,40 +80,40 @@ Get the latest release from GitHub:
     <Steps>
     1. **Download the DMG**
 
-       Go to the [GitHub Releases](https://github.com/ModioStudio/MiniFy/releases/latest) page
+       Go to the [GitHub Releases](https://github.com/Skeptic-systems/Orion/releases/latest) page
        and download the `.dmg` file for macOS.
 
     2. **Mount and install**
 
-       Open the DMG file and drag MiniFy to your Applications folder.
+       Open the DMG file and drag Orion to your Applications folder.
 
        ```
        ┌───────────────────────────────────────────────────────────────┐
        │                                                               │
-       │     [ MiniFy.app ]    ───────────▶    [ Applications ]       │
+       │     [ Orion.app ]    ───────────▶    [ Applications ]       │
        │                                                               │
        │         Drag to install                                       │
        │                                                               │
        └───────────────────────────────────────────────────────────────┘
        ```
 
-    3. **Launch MiniFy**
+    3. **Launch Orion**
 
-       Open MiniFy from your Applications folder or Spotlight (⌘+Space → "MiniFy").
+       Open Orion from your Applications folder or Spotlight (⌘+Space → "Orion").
 
     4. **Authenticate with Spotify**
 
-       Click "Connect to Spotify" and authorize MiniFy to access your account.
+       Click "Connect to Spotify" and authorize Orion to access your account.
     </Steps>
 
     <Aside type="caution" title="macOS Security">
-      On first launch, macOS may show a security warning because MiniFy isn't signed with an
+      On first launch, macOS may show a security warning because Orion isn't signed with an
       Apple Developer certificate.
 
       **To bypass:**
-      1. Try to open MiniFy (you'll see a warning)
+      1. Try to open Orion (you'll see a warning)
       2. Open **System Settings** → **Privacy & Security**
-      3. Scroll down and click **"Open Anyway"** next to the MiniFy message
+      3. Scroll down and click **"Open Anyway"** next to the Orion message
       4. Click **Open** in the confirmation dialog
     </Aside>
 
@@ -131,7 +131,7 @@ Get the latest release from GitHub:
     <Steps>
     1. **Download the package**
 
-       Go to the [GitHub Releases](https://github.com/ModioStudio/MiniFy/releases/latest) page
+       Go to the [GitHub Releases](https://github.com/Skeptic-systems/Orion/releases/latest) page
        and download the appropriate package:
 
        | Distribution | Package |
@@ -144,35 +144,35 @@ Get the latest release from GitHub:
 
        **Debian/Ubuntu:**
        ```bash
-       sudo dpkg -i minify_*.deb
+       sudo dpkg -i Orion_*.deb
        sudo apt-get install -f  # Install dependencies if needed
        ```
 
        **Fedora/RHEL:**
        ```bash
-       sudo rpm -i minify_*.rpm
+       sudo rpm -i Orion-*.rpm
        ```
 
        **AppImage (universal):**
        ```bash
-       chmod +x MiniFy_*.AppImage
-       ./MiniFy_*.AppImage
+       chmod +x Orion_*.AppImage
+       ./Orion_*.AppImage
        ```
 
-    3. **Launch MiniFy**
+    3. **Launch Orion**
 
-       Find MiniFy in your application menu or run from terminal:
+       Find Orion in your application menu or run from terminal:
        ```bash
        minify
        ```
 
     4. **Authenticate with Spotify**
 
-       Click "Connect to Spotify" and authorize MiniFy to access your account.
+       Click "Connect to Spotify" and authorize Orion to access your account.
     </Steps>
 
     <Aside type="note" title="Linux Dependencies">
-      MiniFy requires some system libraries. If you encounter issues, install:
+      Orion requires some system libraries. If you encounter issues, install:
       ```bash
       # Debian/Ubuntu
       sudo apt install libwebkit2gtk-4.1-dev libssl-dev
@@ -196,7 +196,7 @@ Get the latest release from GitHub:
 
 ## Post-Installation Setup
 
-After installation, you'll need to connect MiniFy to Spotify:
+After installation, you'll need to connect Orion to Spotify:
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────┐
@@ -204,7 +204,7 @@ After installation, you'll need to connect MiniFy to Spotify:
 ├───────────────────────────────────────────────────────────────────────────────┤
 │                                                                                │
 │   ┌────────────────┐                                                          │
-│   │  Launch MiniFy │                                                          │
+│   │  Launch Orion │                                                          │
 │   └───────┬────────┘                                                          │
 │           │                                                                    │
 │           ▼                                                                    │
@@ -220,7 +220,7 @@ After installation, you'll need to connect MiniFy to Spotify:
 │           │                                                                    │
 │           ▼                                                                    │
 │   ┌────────────────────────────────────────┐                                  │
-│   │  Success! MiniFy shows your music       │                                  │
+│   │  Success! Orion shows your music       │                                  │
 │   └────────────────────────────────────────┘                                  │
 │                                                                                │
 └────────────────────────────────────────────────────────────────────────────────┘
@@ -228,15 +228,15 @@ After installation, you'll need to connect MiniFy to Spotify:
 
 ## Build from Source
 
-If you prefer to build MiniFy from source, see the [Building Guide](/dev/building/).
+If you prefer to build Orion from source, see the [Building Guide](/dev/building/).
 
 ## Verifying the Installation
 
 After installation, verify everything works:
 
-1. **Launch MiniFy** - The app should open without errors
+1. **Launch Orion** - The app should open without errors
 2. **Connect to Spotify** - Authentication should complete successfully
-3. **Check playback** - If Spotify is playing, MiniFy should show the track
+3. **Check playback** - If Spotify is playing, Orion should show the track
 4. **Test controls** - Press Space to toggle play/pause
 
 ## Troubleshooting
@@ -247,7 +247,7 @@ After installation, verify everything works:
   <TabItem label="Windows">
     **"Windows protected your PC" message**
     - Click "More info" → "Run anyway"
-    - MiniFy is open source and safe to run
+    - Orion is open source and safe to run
 
     **Installer fails**
     - Run as administrator
@@ -255,11 +255,11 @@ After installation, verify everything works:
     - Download WebView2 from [Microsoft](https://developer.microsoft.com/en-us/microsoft-edge/webview2/)
   </TabItem>
   <TabItem label="macOS">
-    **"MiniFy is damaged and can't be opened"**
-    - Open Terminal and run: `xattr -d com.apple.quarantine /Applications/MiniFy.app`
+    **"Orion is damaged and can't be opened"**
+    - Open Terminal and run: `xattr -d com.apple.quarantine /Applications/Orion.app`
     - Or use the System Settings method described above
 
-    **"MiniFy cannot be opened because the developer cannot be verified"**
+    **"Orion cannot be opened because the developer cannot be verified"**
     - Right-click the app → Open → Open
     - Or adjust Security settings as described above
   </TabItem>
@@ -275,7 +275,7 @@ After installation, verify everything works:
 
     **AppImage won't run**
     ```bash
-    chmod +x MiniFy_*.AppImage
+    chmod +x Orion_*.AppImage
     # If still failing, try with FUSE:
     sudo apt install fuse libfuse2
     ```
@@ -297,37 +297,37 @@ After installation, verify everything works:
 <Tabs>
   <TabItem label="Windows">
     1. Open Settings → Apps → Installed Apps
-    2. Find MiniFy and click Uninstall
+    2. Find Orion and click Uninstall
     3. Follow the uninstall wizard
 
     **Remove all data:**
     ```powershell
-    Remove-Item -Recurse "$env:APPDATA\MiniFy"
+    Remove-Item -Recurse "$env:APPDATA\com.modiostudio.minify"
     ```
   </TabItem>
   <TabItem label="macOS">
-    1. Drag MiniFy from Applications to Trash
+    1. Drag Orion from Applications to Trash
     2. Empty Trash
 
     **Remove all data:**
     ```bash
-    rm -rf ~/Library/Application\ Support/MiniFy
+    rm -rf ~/Library/Application\ Support/com.modiostudio.minify
     ```
   </TabItem>
   <TabItem label="Linux">
     **Debian/Ubuntu:**
     ```bash
-    sudo apt remove minify
+    sudo apt remove orion
     ```
 
     **Fedora:**
     ```bash
-    sudo dnf remove minify
+    sudo dnf remove orion
     ```
 
     **Remove all data:**
     ```bash
-    rm -rf ~/.config/MiniFy
+    rm -rf ~/.local/share/com.modiostudio.minify
     ```
   </TabItem>
 </Tabs>

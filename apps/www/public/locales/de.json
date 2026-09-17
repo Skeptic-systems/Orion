@@ -26,7 +26,7 @@
     },
     "themes": {
       "title": "Anpassbare Themes",
-      "description": "Wechsle zwischen Theme-Vorlagen und passe Farben an, um MiniFy zu deinem eigenen zu machen."
+      "description": "Wechsle zwischen Theme-Vorlagen und passe Farben an, um Orion zu deinem eigenen zu machen."
     },
     "performance": {
       "title": "Blitzschnell",
@@ -42,8 +42,8 @@
     }
   },
   "download": {
-    "sectionTitle": "MiniFy Herunterladen",
-    "sectionDescription": "Starte kostenlos mit MiniFy. Verfügbar für Windows und Linux.",
+    "sectionTitle": "Orion Herunterladen",
+    "sectionDescription": "Starte kostenlos mit Orion. Verfügbar für Windows und Linux.",
     "latestVersion": "Neueste Version",
     "loading": "Lade Release-Informationen...",
     "windowsDescription": "Windows 10/11 (64-bit)",
@@ -55,7 +55,7 @@
     "learnMore": "Mehr erfahren"
   },
   "downloadPage": {
-    "title": "MiniFy Herunterladen",
+    "title": "Orion Herunterladen",
     "subtitle": "Wähle deine Plattform und starte mit dem besten Spotify Mini-Player",
     "recommended": "Empfohlen",
     "windows": {
@@ -106,12 +106,12 @@
         "Lade die .exe-Datei herunter",
         "Führe den Installer aus",
         "Folge den Installationsschritten",
-        "Starte MiniFy und melde dich mit Spotify an"
+        "Starte Orion und melde dich mit Spotify an"
       ],
       "macos": [
         "Lade die .dmg-Datei herunter",
-        "Öffne die DMG und ziehe MiniFy in Programme",
-        "Öffne MiniFy aus dem Programme-Ordner",
+        "Öffne die DMG und ziehe Orion in Programme",
+        "Öffne Orion aus dem Programme-Ordner",
         "Bei Warnung: Systemeinstellungen → Sicherheit"
       ],
       "linux": {
@@ -129,7 +129,7 @@
   },
   "opensource": {
     "title": "Open Source & Community Driven",
-    "description": "MiniFy wird offen entwickelt mit Beiträgen von Entwicklern weltweit. Mach mit und hilf uns, es besser zu machen!",
+    "description": "Orion wird offen entwickelt mit Beiträgen von Entwicklern weltweit. Mach mit und hilf uns, es besser zu machen!",
     "stars": "Stars",
     "forks": "Forks",
     "contributors": "Mitwirkende",
@@ -148,7 +148,7 @@
     "contributing": "Mitwirken",
     "codeOfConduct": "Verhaltenskodex",
     "madeWith": "Gemacht mit",
-    "byTeam": "vom MiniFy-Team",
+    "byTeam": "vom Orion-Team",
     "allRightsReserved": "Alle Rechte vorbehalten."
   }
 }

@@ -7,8 +7,8 @@ export default defineConfig({
   },
   integrations: [
     starlight({
-      title: "MiniFy Docs",
-      description: "Documentation for MiniFy - Lightweight Spotify Mini Player",
+      title: "Orion Docs",
+      description: "Documentation for Orion - Lightweight Spotify Mini Player",
       logo: {
         src: "./src/assets/logo.png",
         replacesTitle: false,
@@ -17,7 +17,7 @@ export default defineConfig({
         {
           icon: "github",
           label: "GitHub",
-          href: "https://github.com/ModioStudio/MiniFy",
+          href: "https://github.com/Skeptic-systems/Orion",
         },
       ],
       customCss: ["./src/styles/custom.css"],
@@ -81,7 +81,7 @@ export default defineConfig({
         },
       ],
       editLink: {
-        baseUrl: "https://github.com/ModioStudio/MiniFy/edit/main/apps/docs/",
+        baseUrl: "https://github.com/Skeptic-systems/Orion/edit/main/apps/docs/",
       },
       lastUpdated: true,
     }),

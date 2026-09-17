@@ -89,7 +89,7 @@ class SpotifyProviderImpl implements MusicProvider {
   }
 
   async getPlaybackState(): Promise<PlaybackState | null> {
-    // When MiniFy is the playing device the SDK already pushes state to us, so
+    // When Orion is the playing device the SDK already pushes state to us, so
     // prefer it: it is exact, free, and does not burn a Web API call every poll.
     const local = getSpotifyLocalPlayback();
     if (isSpotifyWebPlaybackReady() && local?.track) {

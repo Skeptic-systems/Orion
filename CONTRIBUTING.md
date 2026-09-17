@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for your interest in improving MiniFy. Please follow these guidelines to keep contributions smooth and maintainable.
+Thank you for your interest in improving Orion. Please follow these guidelines to keep contributions smooth and maintainable.
 
 ## How to Contribute
 - **Discuss first:** Open an issue for bugs or feature ideas before starting work.

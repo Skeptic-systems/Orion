@@ -1,12 +1,12 @@
 import { SpeakerHigh, SpeakerLow, SpeakerNone, SpeakerX } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { fromOutputVolume } from "../../../lib/outputVolume";
+import { playbackCommand } from "../../../lib/playback/session";
 import { readSettings, writeSettings } from "../../../lib/settingLib";
 import {
   getSpotifyWebPlaybackDeviceId,
   subscribeSpotifyWebPlaybackDeviceId,
 } from "../../../lib/spotifyWebPlaybackDevice";
-import { playbackCommand } from "../../../lib/playback/session";
 import { getPlayerState } from "../../spotifyClient";
 
 /** Debounce before persisting, so dragging the slider does not spam settings. */
@@ -34,12 +34,12 @@ export default function VolumeControl() {
 
       const [state, settings] = await Promise.all([getPlayerState(), readSettings()]);
       if (!mounted) return;
-      // MiniFy's own player starts at the saved level. Only show another
+      // Orion's own player starts at the saved level. Only show another
       // speaker's level when that speaker is where the music is meant to be.
       const localId = getSpotifyWebPlaybackDeviceId();
       const device = state?.device ?? null;
       const expectsLocal = localId !== null && settings.spotify_device?.local !== false;
-      // MiniFy's own device reports the scaled level it actually plays at.
+      // Orion's own device reports the scaled level it actually plays at.
       const reported = device
         ? device.id === localId
           ? fromOutputVolume(device.volume_percent)
@@ -56,7 +56,7 @@ export default function VolumeControl() {
 
     void syncFromDevice();
 
-    // MiniFy's own device registers a second or two after mount, and playback
+    // Orion's own device registers a second or two after mount, and playback
     // is only transferred to it afterwards. Reading once on mount therefore
     // shows the volume of whatever speaker happened to be active before —
     // re-read when the local device takes over.
@@ -71,22 +71,19 @@ export default function VolumeControl() {
     };
   }, []);
 
-  const apply = useCallback(
-    async (next: number) => {
-      const clamped = Math.max(0, Math.min(100, Math.round(next)));
-      setVolume(clamped);
-      setMuted(clamped === 0);
+  const apply = useCallback(async (next: number) => {
+    const clamped = Math.max(0, Math.min(100, Math.round(next)));
+    setVolume(clamped);
+    setMuted(clamped === 0);
 
-      await playbackCommand({ action: "volume", volume: clamped });
+    await playbackCommand({ action: "volume", volume: clamped });
 
-      if (persistTimer.current) clearTimeout(persistTimer.current);
-      persistTimer.current = setTimeout(() => {
-        void writeSettings({ spotify_volume: clamped });
-        persistTimer.current = null;
-      }, PERSIST_DEBOUNCE_MS);
-    },
-    []
-  );
+    if (persistTimer.current) clearTimeout(persistTimer.current);
+    persistTimer.current = setTimeout(() => {
+      void writeSettings({ spotify_volume: clamped });
+      persistTimer.current = null;
+    }, PERSIST_DEBOUNCE_MS);
+  }, []);
 
   const toggleMute = useCallback(() => {
     if (muted || volume === 0) {

@@ -169,11 +169,11 @@ function fireAndForget(url: string, init?: FetchOptions): void {
 }
 
 /**
- * Pins a player command to MiniFy's own Connect device when it is registered.
+ * Pins a player command to Orion's own Connect device when it is registered.
  * Without this the command lands on whatever device Spotify last considered
  * active — usually the official desktop client.
  */
-function withMinifyDevice(url: string): string {
+function withOrionDevice(url: string): string {
   const deviceId = getSpotifyWebPlaybackDeviceId();
   if (!deviceId) return url;
 
@@ -189,21 +189,21 @@ export async function fetchCurrentlyPlaying(): Promise<CurrentlyPlaying> {
 }
 
 export function play(): void {
-  fireAndForget(withMinifyDevice("https://api.spotify.com/v1/me/player/play"), { method: "PUT" });
+  fireAndForget(withOrionDevice("https://api.spotify.com/v1/me/player/play"), { method: "PUT" });
 }
 
 export function pause(): void {
-  fireAndForget(withMinifyDevice("https://api.spotify.com/v1/me/player/pause"), {
+  fireAndForget(withOrionDevice("https://api.spotify.com/v1/me/player/pause"), {
     method: "PUT",
   });
 }
 
 export function nextTrack(): void {
-  fireAndForget(withMinifyDevice("https://api.spotify.com/v1/me/player/next"), { method: "POST" });
+  fireAndForget(withOrionDevice("https://api.spotify.com/v1/me/player/next"), { method: "POST" });
 }
 
 export function previousTrack(): void {
-  fireAndForget(withMinifyDevice("https://api.spotify.com/v1/me/player/previous"), {
+  fireAndForget(withOrionDevice("https://api.spotify.com/v1/me/player/previous"), {
     method: "POST",
   });
 }
@@ -250,7 +250,7 @@ export function setVolume(volumePercent: number): void {
 
   volumeTimeout = setTimeout(() => {
     fireAndForget(
-      withMinifyDevice(
+      withOrionDevice(
         `https://api.spotify.com/v1/me/player/volume?volume_percent=${lastVolumeValue}`
       ),
       {
@@ -270,7 +270,7 @@ export function seek(positionMs: number): void {
 
   seekTimeout = setTimeout(() => {
     const url = `https://api.spotify.com/v1/me/player/seek?position_ms=${lastSeekPosition}`;
-    fireAndForget(withMinifyDevice(url), { method: "PUT" });
+    fireAndForget(withOrionDevice(url), { method: "PUT" });
     seekTimeout = null;
   }, 100);
 }
@@ -330,7 +330,7 @@ export async function playTrack(trackUri: string, positionMs?: number): Promise<
   if (positionMs !== undefined && positionMs > 0) {
     body.position_ms = positionMs;
   }
-  await request<void>(withMinifyDevice("https://api.spotify.com/v1/me/player/play"), {
+  await request<void>(withOrionDevice("https://api.spotify.com/v1/me/player/play"), {
     method: "PUT",
     body: JSON.stringify(body),
   });
@@ -514,19 +514,18 @@ export async function fetchSavedTracksCount(): Promise<number> {
 
 export async function addToQueue(trackUri: string): Promise<void> {
   const url = `https://api.spotify.com/v1/me/player/queue?uri=${encodeURIComponent(trackUri)}`;
-  await request<void>(withMinifyDevice(url), { method: "POST" });
+  await request<void>(withOrionDevice(url), { method: "POST" });
 }
 
 /** Spotify's shuffle mode on the active device; it carries over to the next context. */
 export async function setShuffle(on: boolean): Promise<void> {
-  await request<void>(
-    withMinifyDevice(`https://api.spotify.com/v1/me/player/shuffle?state=${on}`),
-    { method: "PUT" }
-  );
+  await request<void>(withOrionDevice(`https://api.spotify.com/v1/me/player/shuffle?state=${on}`), {
+    method: "PUT",
+  });
 }
 
 export async function playTracks(trackUris: string[]): Promise<void> {
-  await request<void>(withMinifyDevice("https://api.spotify.com/v1/me/player/play"), {
+  await request<void>(withOrionDevice("https://api.spotify.com/v1/me/player/play"), {
     method: "PUT",
     body: JSON.stringify({ uris: trackUris }),
   });
@@ -641,7 +640,7 @@ export async function playPlaylistContext(
   offset: number,
   trackUri?: string
 ): Promise<void> {
-  await request<void>(withMinifyDevice("https://api.spotify.com/v1/me/player/play"), {
+  await request<void>(withOrionDevice("https://api.spotify.com/v1/me/player/play"), {
     method: "PUT",
     body: JSON.stringify({
       context_uri: `spotify:playlist:${playlistId}`,
@@ -651,7 +650,7 @@ export async function playPlaylistContext(
 }
 
 export async function playAlbumContext(albumId: string, offset: number): Promise<void> {
-  await request<void>(withMinifyDevice("https://api.spotify.com/v1/me/player/play"), {
+  await request<void>(withOrionDevice("https://api.spotify.com/v1/me/player/play"), {
     method: "PUT",
     body: JSON.stringify({
       context_uri: `spotify:album:${albumId}`,

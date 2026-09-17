@@ -250,7 +250,7 @@ textarea {
 
 /*
  * Defaults only. themeLoader writes the real values onto the document element
- * as inline custom properties, which win over these, so every MiniFy theme —
+ * as inline custom properties, which win over these, so every Orion theme —
  * including user-authored ones — repaints the desktop shell too.
  */
 :root {

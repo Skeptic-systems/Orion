@@ -27,7 +27,7 @@ A changeset file looks like this:
 
 ```md
 ---
-"MiniFy": minor
+"Orion": minor
 ---
 
 Added dark mode support to the desktop application

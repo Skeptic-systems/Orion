@@ -1,24 +1,24 @@
 ---
 title: Security
-description: Comprehensive security documentation for MiniFy - credential storage, data protection, and privacy.
+description: Comprehensive security documentation for Orion - credential storage, data protection, and privacy.
 ---
 
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
 # Security
 
-MiniFy is designed with security as a core principle. This document explains how your credentials are
+Orion is designed with security as a core principle. This document explains how your credentials are
 stored, how your data is protected, and what privacy measures are in place.
 
 ## Security Architecture Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                         MiniFy Security Architecture                         │
+│                         Orion Security Architecture                         │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
 │   ┌────────────────────────────────────────────────────────────────────┐    │
-│   │                      MiniFy Desktop Application                     │    │
+│   │                      Orion Desktop Application                     │    │
 │   ├────────────────────────────────────────────────────────────────────┤    │
 │   │                                                                     │    │
 │   │   ┌──────────────┐    ┌──────────────┐    ┌──────────────┐        │    │
@@ -150,18 +150,18 @@ provider preferences. **API keys are never stored in the settings file.**
 <Tabs>
   <TabItem label="Windows">
     ```
-    %APPDATA%\MiniFy\settings.json
+    %APPDATA%\com.modiostudio.minify\settings.json
     ```
-    Example: `C:\Users\YourName\AppData\Roaming\MiniFy\settings.json`
+    Example: `C:\Users\YourName\AppData\Roaming\com.modiostudio.minify\settings.json`
   </TabItem>
   <TabItem label="macOS">
     ```
-    ~/Library/Application Support/MiniFy/settings.json
+    ~/Library/Application Support/com.modiostudio.minify/settings.json
     ```
   </TabItem>
   <TabItem label="Linux">
     ```
-    ~/.config/MiniFy/settings.json
+    ~/.local/share/com.modiostudio.minify/settings.json
     ```
   </TabItem>
 </Tabs>
@@ -195,14 +195,14 @@ Tokens are stored in the OS keyring, not in this file.
 
 ### PKCE Implementation
 
-MiniFy uses **OAuth 2.0 with PKCE** (RFC 7636), the gold standard for public clients:
+Orion uses **OAuth 2.0 with PKCE** (RFC 7636), the gold standard for public clients:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                    PKCE Security Flow                           │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
-│  Client (MiniFy)                        Authorization Server    │
+│  Client (Orion)                        Authorization Server    │
 │       │                                        │                │
 │       │  1. Generate code_verifier             │                │
 │       │     (64 random chars, URL-safe)        │                │
@@ -265,7 +265,7 @@ The AI never has direct access to your Spotify account:
 ├───────────────────────────────────────────────────────────────────────────┤
 │                                                                            │
 │   ┌─────────────────┐                         ┌─────────────────────────┐ │
-│   │  AI Provider    │                         │   MiniFy Application    │ │
+│   │  AI Provider    │                         │   Orion Application    │ │
 │   │  (OpenAI, etc.) │                         │                         │ │
 │   ├─────────────────┤                         ├─────────────────────────┤ │
 │   │                 │                         │  ┌───────────────────┐  │ │
@@ -324,7 +324,7 @@ OS Keyring Entries:
 
 ## Spotify API Permissions
 
-MiniFy follows the principle of least privilege:
+Orion follows the principle of least privilege:
 
 ### Read-Only Scopes
 
@@ -344,7 +344,7 @@ MiniFy follows the principle of least privilege:
 | `user-modify-playback-state` | Play, pause, skip, seek | Write (playback only) |
 
 <Aside type="note">
-MiniFy **does not** request write access to your library, playlists, or profile.
+Orion **does not** request write access to your library, playlists, or profile.
 It cannot modify your saved tracks, create playlists, or change your account settings.
 </Aside>
 
@@ -363,8 +363,8 @@ All network communications use TLS 1.2 or higher:
 
 ### No External Data Collection
 
-MiniFy does not:
-- Send telemetry to MiniFy servers
+Orion does not:
+- Send telemetry to Orion servers
 - Track usage analytics
 - Phone home for any reason
 - Include any third-party analytics SDKs
@@ -402,9 +402,9 @@ pnpm desktop:clear
 ### For Users
 
 1. **Keep API keys private** - Never share them or commit them to version control
-2. **Use unique API keys** - Create keys specifically for MiniFy in each provider's dashboard
+2. **Use unique API keys** - Create keys specifically for Orion in each provider's dashboard
 3. **Revoke if compromised** - Immediately rotate keys if you suspect exposure
-4. **Keep MiniFy updated** - Updates may include security fixes
+4. **Keep Orion updated** - Updates may include security fixes
 5. **Use strong OS passwords** - Your keyring security depends on your login credentials
 
 ### For Developers
@@ -429,7 +429,7 @@ If you discover a security vulnerability:
 
 ## Compliance Notes
 
-- **GDPR**: MiniFy stores minimal data locally. No data is transmitted to MiniFy servers.
+- **GDPR**: Orion stores minimal data locally. No data is transmitted to Orion servers.
 - **Data Portability**: All data is stored in standard formats (JSON, OS keyring).
 - **Right to Erasure**: Users can delete all data using `pnpm desktop:clear`.
 

@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-export const GITHUB_REPO = "ModioStudio/MiniFy";
+export const GITHUB_REPO = "Skeptic-systems/Orion";
 export const RELEASES_URL = `https://github.com/${GITHUB_REPO}/releases`;
+const RELEASE_REPOSITORIES = [GITHUB_REPO, "ModioStudio/MiniFy"] as const;
 
 export interface ReleaseAsset {
   name: string;
@@ -21,16 +22,19 @@ export interface GithubRelease {
 
 /** Fetches the latest published (non-draft, non-prerelease) release from GitHub. */
 export async function fetchLatestRelease(signal?: AbortSignal): Promise<GithubRelease | null> {
-  try {
-    const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`, {
-      headers: { Accept: "application/vnd.github+json" },
-      signal,
-    });
-    if (!res.ok) return null;
-    return (await res.json()) as GithubRelease;
-  } catch {
-    return null;
+  for (const repository of RELEASE_REPOSITORIES) {
+    try {
+      const res = await fetch(`https://api.github.com/repos/${repository}/releases/latest`, {
+        headers: { Accept: "application/vnd.github+json" },
+        signal,
+      });
+      if (res.ok) return (await res.json()) as GithubRelease;
+    } catch {
+      if (signal?.aborted) return null;
+    }
   }
+
+  return null;
 }
 
 /** Human-readable format label for a release asset, derived from its file name. */

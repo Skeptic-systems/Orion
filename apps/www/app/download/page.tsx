@@ -87,6 +87,19 @@ export default function DownloadPage() {
   const platforms = resolvePlatformAssets(release);
   const displayVersion = version ? `v${version}` : "…";
   const releaseVersion = version || "x.y.z";
+  const linuxAssets = [
+    platforms.linux.primary,
+    ...platforms.linux.extras.map(({ asset }) => asset),
+  ];
+  const debFileName =
+    linuxAssets.find((asset) => asset?.name.toLowerCase().endsWith(".deb"))?.name ??
+    `Orion_${releaseVersion}_amd64.deb`;
+  const rpmFileName =
+    linuxAssets.find((asset) => asset?.name.toLowerCase().endsWith(".rpm"))?.name ??
+    `Orion-${releaseVersion}-1.x86_64.rpm`;
+  const appImageFileName =
+    linuxAssets.find((asset) => asset?.name.toLowerCase().endsWith(".appimage"))?.name ??
+    `Orion_${releaseVersion}_amd64.AppImage`;
 
   const releasedOn = release?.published_at
     ? new Intl.DateTimeFormat(language, { dateStyle: "long" }).format(
@@ -361,7 +374,7 @@ export default function DownloadPage() {
                     {t.downloadPage.installSteps.linux.deb}
                   </p>
                   <code className="block rounded-md bg-muted p-3 text-xs">
-                    sudo dpkg -i minify_{releaseVersion}_amd64.deb
+                    sudo dpkg -i {debFileName}
                   </code>
                 </div>
                 <div>
@@ -369,7 +382,7 @@ export default function DownloadPage() {
                     {t.downloadPage.installSteps.linux.rpm}
                   </p>
                   <code className="block rounded-md bg-muted p-3 text-xs">
-                    sudo rpm -i minify-{releaseVersion}-1.x86_64.rpm
+                    sudo rpm -i {rpmFileName}
                   </code>
                 </div>
                 <div>
@@ -377,9 +390,9 @@ export default function DownloadPage() {
                     {t.downloadPage.installSteps.linux.appimage}
                   </p>
                   <code className="block rounded-md bg-muted p-3 text-xs">
-                    chmod +x MiniFy_{releaseVersion}_amd64.AppImage
+                    chmod +x {appImageFileName}
                     <br />
-                    ./MiniFy_{releaseVersion}_amd64.AppImage
+                    ./{appImageFileName}
                   </code>
                 </div>
               </div>
@@ -395,7 +408,7 @@ export default function DownloadPage() {
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
               <Button variant="outline" asChild>
                 <a
-                  href="https://minify-docs.modio.studio/"
+                  href="https://minify-docs.skeptic.run/"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -404,7 +417,7 @@ export default function DownloadPage() {
               </Button>
               <Button variant="outline" asChild>
                 <a
-                  href="https://github.com/ModioStudio/MiniFy/issues"
+                  href="https://github.com/Skeptic-systems/Orion/issues"
                   target="_blank"
                   rel="noopener noreferrer"
                 >

@@ -72,10 +72,10 @@ function unzip(zip, destination) {
             "-NoProfile",
             "-NonInteractive",
             "-Command",
-            "Expand-Archive -LiteralPath $env:MINIFY_AUDIO_ZIP -DestinationPath $env:MINIFY_AUDIO_DIR -Force",
+            "Expand-Archive -LiteralPath $env:ORION_AUDIO_ZIP -DestinationPath $env:ORION_AUDIO_DIR -Force",
           ],
           {
-            env: { ...process.env, MINIFY_AUDIO_ZIP: zip, MINIFY_AUDIO_DIR: destination },
+            env: { ...process.env, ORION_AUDIO_ZIP: zip, ORION_AUDIO_DIR: destination },
             windowsHide: true,
             stdio: "inherit",
           }
