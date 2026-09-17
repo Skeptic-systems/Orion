@@ -85,6 +85,14 @@ export type ProviderPlaybackCache = {
   spotify: LastPlayedTrack | null;
 } & Partial<Record<Exclude<MusicProviderType, "spotify">, LastPlayedTrack | null>>;
 
+/** The ten-band curve, persisted between sessions. See `lib/equalizer.ts`. */
+export type EqualizerSettings = {
+  enabled: boolean;
+  preset: string;
+  preamp: number;
+  bands: number[];
+};
+
 /** `local` means Orion's own player, whose device id changes every session. */
 export type SavedSpotifyDevice = {
   id: string;
@@ -125,6 +133,7 @@ export type Settings = {
   theme_background: string | null;
   /** 0–80: how far that image is faded toward the theme's background. */
   theme_background_dim: number;
+  equalizer: EqualizerSettings | null;
 };
 
 export type CustomTheme = {
@@ -196,6 +205,7 @@ export async function readSettings(): Promise<Settings> {
       desktop_layout: settings.desktop_layout ?? null,
       theme_background: settings.theme_background ?? null,
       theme_background_dim: settings.theme_background_dim ?? 35,
+      equalizer: settings.equalizer ?? null,
     };
   } catch (err) {
     console.warn("Failed to read settings via Tauri, using defaults:", err);
@@ -221,6 +231,7 @@ export async function readSettings(): Promise<Settings> {
       desktop_layout: null,
       theme_background: null,
       theme_background_dim: 35,
+      equalizer: null,
     };
   }
 }

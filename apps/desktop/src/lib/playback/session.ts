@@ -5,6 +5,7 @@ import { convertToUnifiedTrack, createSpotifyProvider } from "../../providers/sp
 import { isSelfPlayed, resolverRef, type UnifiedTrack } from "../../providers/types";
 import { fetchCurrentlyPlaying, transferPlayback } from "../../ui/spotifyClient";
 import { stopAIQueue } from "../aiQueueService";
+import { attachEqualizer, loadEqualizer, resumeEqualizer } from "../equalizer";
 import { jellyfinStreamUrl } from "../jellyfin";
 import type { LocalPlaylist, PlaylistChange, PlaylistEntry } from "../localLibrary";
 import { toOutputVolume } from "../outputVolume";
@@ -214,6 +215,7 @@ async function playEntry(track: UnifiedTrack, positionMs = 0, fresh = false) {
       }
       streamId = stream.streamId;
       playingLocally = true;
+      resumeEqualizer();
       player.src = stream.url;
       player.currentTime = positionMs / 1000;
       await player.play();
@@ -446,7 +448,10 @@ async function execute(command: PlaybackCommand) {
         else if (!playingLocally || current.error) {
           await playEntry(track, current.playback?.progressMs ?? 0);
           return;
-        } else await audio?.play();
+        } else {
+          resumeEqualizer();
+          await audio?.play();
+        }
       } else if (command.playing) await spotify.play();
       else await spotify.pause();
       const playback = state().playback;
@@ -480,6 +485,12 @@ export function initializePlaybackSession(): Promise<void> {
     const player = new Audio();
     audio = player;
     player.preload = "auto";
+    // Both must be set before any src: a media element that has already loaded
+    // a cross-origin resource cannot be read by Web Audio, and the equaliser
+    // would then filter silence. The proxy and Jellyfin both send CORS headers.
+    player.crossOrigin = "anonymous";
+    attachEqualizer(player);
+    void loadEqualizer();
     // The bar runs its own clock between reports, so the position needs one
     // report a second; timeupdate fires four times as often.
     let reportedAt = 0;

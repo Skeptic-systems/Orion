@@ -95,6 +95,22 @@ pub struct Settings {
     /// How far the uploaded image is darkened (or lightened on a light theme).
     #[serde(default = "default_background_dim")]
     pub theme_background_dim: u8,
+    #[serde(default)]
+    pub equalizer: Option<Equalizer>,
+}
+
+/// The graphic equaliser, as the renderer stores it. Kept loose on purpose:
+/// the band frequencies belong to the audio graph in the frontend, and Rust
+/// only carries the settings across restarts.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Equalizer {
+    pub enabled: bool,
+    /// Which preset the bands came from, or "custom" once they were dragged.
+    pub preset: String,
+    /// Overall level in dB, to make room for boosted bands.
+    pub preamp: f32,
+    /// One gain in dB per band, low frequency first.
+    pub bands: Vec<f32>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
@@ -173,6 +189,7 @@ impl Default for Settings {
             desktop_layout: None,
             theme_background: None,
             theme_background_dim: default_background_dim(),
+            equalizer: None,
         }
     }
 }

@@ -621,3 +621,48 @@ body.is-sorting-rows * {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* The equalizer: ten vertical sliders read as a curve, which is the point of a
+   graphic EQ — the shape says more than the numbers. */
+.equalizer-bands {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 12px 8px;
+  border-radius: 12px;
+  background: var(--settings-card-bg);
+}
+.equalizer-band {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.equalizer-slider {
+  /* Upright, with the boost at the top. `writing-mode` is the modern way and
+     the appearance fallback keeps older engines from laying it out flat. */
+  writing-mode: vertical-lr;
+  direction: rtl;
+  -webkit-appearance: slider-vertical;
+  appearance: slider-vertical;
+  width: 20px;
+  height: 116px;
+  cursor: pointer;
+  accent-color: var(--settings-accent, #1ed760);
+}
+.equalizer-slider:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+.equalizer-value,
+.equalizer-freq {
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  color: var(--settings-text-muted);
+  white-space: nowrap;
+}
+.equalizer-value {
+  color: var(--settings-text);
+}

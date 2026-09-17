@@ -6,6 +6,7 @@ import {
   CircleNotch,
   DiscordLogo,
   Download,
+  Equalizer,
   Eye,
   FilmStrip,
   FloppyDisk,
@@ -51,6 +52,7 @@ import { applyCustomThemeFromJson, validateThemeJsonFormat } from "../../loader/
 import AdvancedThemes from "../components/AdvancedThemes";
 import JellyfinConnection from "./connections/JellyfinConnection";
 import SoundCloudConnection from "./connections/SoundCloudConnection";
+import EqualizerSettings from "./EqualizerSettings";
 
 const AI_PROVIDERS: { id: AIProviderType; name: string; model: string; color: string }[] = [
   { id: "openai", name: "OpenAI", model: "GPT-4o Mini", color: "#10A37F" },
@@ -162,6 +164,9 @@ const categories = [
   { key: "layout", label: "Mini player", icon: SquaresFour, miniOnly: true },
   { key: "themestudio", label: "Theme Studio", icon: PaintBrush, miniOnly: false },
   { key: "connections", label: "Connections", icon: Link, miniOnly: false },
+  // The desktop window reaches the equalizer from its own sidebar; the mini
+  // player has no sidebar, so there it lives here.
+  { key: "equalizer", label: "Equalizer", icon: Equalizer, miniOnly: true },
   { key: "aidj", label: "AI DJ", icon: Brain, miniOnly: false },
   { key: "privacy", label: "Privacy", icon: ShieldCheck, miniOnly: false },
 ] as const;
@@ -1571,6 +1576,8 @@ export default function Settings({
               </div>
             </div>
           )}
+
+          {active === "equalizer" && <EqualizerSettings />}
 
           {active === "privacy" && (
             <div className="flex flex-col gap-4">

@@ -4,6 +4,7 @@ import {
   ArrowsOutSimple,
   Article,
   DownloadSimple,
+  Equalizer,
   GearSix,
   House,
   MagnifyingGlass,
@@ -70,6 +71,7 @@ import PlaybackBar from "./components/TrackControls/PlaybackBar";
 import TrackControls, { setPlayback } from "./components/TrackControls/TrackControls";
 import VolumeControl from "./components/VolumeControl/VolumeControl";
 import AIDJView from "./views/AIDJView";
+import EqualizerSettings from "./views/EqualizerSettings";
 import Settings from "./views/Settings";
 
 type DesktopShellProps = {
@@ -77,7 +79,7 @@ type DesktopShellProps = {
   onUpdateTheme: (theme: string) => void;
 };
 
-type DesktopView = "home" | "search" | "playlists" | "aidj" | "settings";
+type DesktopView = "home" | "search" | "playlists" | "equalizer" | "aidj" | "settings";
 /** Where the music video plays, if anywhere. The settings allow one place at a time. */
 type MusicVideoMode = "off" | "sidebar" | "background";
 
@@ -714,6 +716,7 @@ export default function DesktopShell({ onResetAuth, onUpdateTheme }: DesktopShel
     { id: "home" as const, label: "Home", icon: House },
     { id: "search" as const, label: "Search", icon: MagnifyingGlass },
     { id: "playlists" as const, label: "Playlists", icon: Playlist },
+    { id: "equalizer" as const, label: "Equalizer", icon: Equalizer },
     { id: "aidj" as const, label: "AI DJ", icon: Waveform },
     { id: "settings" as const, label: "Settings", icon: GearSix },
   ];
@@ -1008,6 +1011,12 @@ export default function DesktopShell({ onResetAuth, onUpdateTheme }: DesktopShel
                     )}
                   </>
                 )}
+              </section>
+            )}
+
+            {view === "equalizer" && (
+              <section className="desktop-section desktop-full-section">
+                <EqualizerSettings />
               </section>
             )}
 

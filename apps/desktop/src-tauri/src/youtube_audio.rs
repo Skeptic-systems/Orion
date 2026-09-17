@@ -184,6 +184,30 @@ fn allowed_for(source: Source, url: &reqwest::Url) -> bool {
 /// The union of the above, for the proxy's redirect policy: a stream is tied
 /// to its service at resolve time, so following a redirect only has to stay
 /// inside the set of CDNs this app talks to at all.
+/// The equaliser reads the played samples through Web Audio, and a media
+/// element only hands those over for a source the page may read. The proxy is
+/// on loopback under a different port than the app, so without this the graph
+/// would output silence instead of music.
+const CORS: (&str, &str) = ("access-control-allow-origin", "*");
+/// The player reads these off the response to seek and to show a duration.
+/// Cross-origin they stay hidden unless named here.
+const CORS_EXPOSE: (&str, &str) = (
+    "access-control-expose-headers",
+    "content-length, content-range, accept-ranges, content-type",
+);
+
+/// Media elements ask with a `Range` header, which some engines preflight.
+async fn preflight() -> Response {
+    Response::builder()
+        .status(StatusCode::NO_CONTENT)
+        .header(CORS.0, CORS.1)
+        .header("access-control-allow-methods", "GET, OPTIONS")
+        .header("access-control-allow-headers", "range")
+        .header("access-control-max-age", "86400")
+        .body(Body::empty())
+        .unwrap_or_default()
+}
+
 fn allowed_url(url: &reqwest::Url) -> bool {
     allowed_for(Source::YouTube, url) || allowed_for(Source::SoundCloud, url)
 }
@@ -280,6 +304,8 @@ fn serve_head(stream: &Stream, head: &Head, end: u64, partial: bool) -> Result<R
         })
         .header("cache-control", "no-store")
         .header("accept-ranges", "bytes")
+        .header(CORS.0, CORS.1)
+        .header(CORS_EXPOSE.0, CORS_EXPOSE.1)
         .header("content-length", length);
     if partial {
         response = response.header("content-range", format!("bytes 0-{end}/{}", head.total));
@@ -324,7 +350,9 @@ async fn audio(
     let upstream = request.send().await.map_err(|_| StatusCode::BAD_GATEWAY)?;
     let mut response = Response::builder()
         .status(upstream.status())
-        .header("cache-control", "no-store");
+        .header("cache-control", "no-store")
+        .header(CORS.0, CORS.1)
+        .header(CORS_EXPOSE.0, CORS_EXPOSE.1);
     for key in ["content-type", "content-length", "content-range", "accept-ranges"] {
         if let Some(value) = upstream.headers().get(key) {
             response = response.header(key, value);
@@ -344,7 +372,7 @@ async fn server() -> Result<&'static Server, String> {
             let port = listener.local_addr().map_err(|e| e.to_string())?.port();
             let registry = Arc::new(Mutex::new(Registry::default()));
             let router = Router::new()
-                .route("/audio/{token}", get(audio))
+                .route("/audio/{token}", get(audio).options(preflight))
                 .with_state(registry.clone());
             tauri::async_runtime::spawn(async move {
                 let _ = axum::serve(listener, router).await;
@@ -713,6 +741,21 @@ pub async fn prefetch_audio(app: AppHandle, tracks: Vec<String>) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Without these the equaliser's `createMediaElementSource` would tap a
+    /// tainted element and output silence — music that plays but cannot be
+    /// heard, which is far harder to trace than an outright error.
+    #[tokio::test]
+    async fn the_proxy_lets_web_audio_read_what_it_serves() {
+        let response = preflight().await;
+        assert_eq!(response.status(), StatusCode::NO_CONTENT);
+        let headers = response.headers();
+        assert_eq!(headers.get(CORS.0).unwrap(), CORS.1);
+        assert_eq!(headers.get("access-control-allow-headers").unwrap(), "range");
+        // Range is what a media element seeks with; refusing it breaks seeking.
+        assert!(CORS_EXPOSE.1.contains("content-range"));
+        assert!(CORS_EXPOSE.1.contains("content-length"));
+    }
 
     #[test]
     fn proxy_restricts_destinations() {
